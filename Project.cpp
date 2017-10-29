@@ -13,15 +13,30 @@ using namespace std;
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	
-	CharString string; string = "http://bbs.cehome.com/thread-614565-1-1.html";
+	/*
+	CharString string; string = "http://bbs.cehome.com/thread-614006-1-1.html";
 
 	WebsiteProcessor websiteProcessor;
 	CharString filename;
-	//websiteProcessor.downloadWebsite(string, filename);
-	filename = "temp.txt";
-	ofstream out("save.txt");
+	filename = "./input/temp.txt";
+	websiteProcessor.downloadWebsite(string, filename);
+	ofstream out("./input/save.txt");
 	websiteProcessor.processHtml(filename, out);
+	*/
+	CharString urlFile = "./input/url.csv";
+	ifstream in; in.open(urlFile.data());
+	if(!in){
+		cout << "error in open url.csv" <<endl;
+		exit(-1);
+	}
+	CharString resultFile = "./output/result.csv";
+	ofstream out; out.open(resultFile.data());
+	if(!out){
+		cout << "error in open result.csv" <<endl;
+		exit(-1);
+	}
+	WebsiteProcessor websiteProcessor;
+	websiteProcessor.process(in, out);
 	return 0;
 }
 

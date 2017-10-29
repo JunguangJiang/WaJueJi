@@ -111,7 +111,7 @@ CharString& CharString::operator=(const std::string& s){//ÓÃstlÖĞµÄstring¸³¸øµ±Ç
 	return *(this);
 }
 
-std::ostream& operator <<(std::ostream& out, CharString& string){//ÖØÔØÊä³öÁ÷
+std::ostream& operator <<(std::ostream& out, const CharString& string){//ÖØÔØÊä³öÁ÷
 	for(int i=0; i<string.size(); i++){
 		out << string[i];
 	}

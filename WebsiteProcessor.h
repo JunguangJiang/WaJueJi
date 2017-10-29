@@ -20,6 +20,19 @@ struct Node{//html文本中的节点
 
 typedef std::shared_ptr<Node> NodePosi;//节点位置
 
+class Record{//为每一个网页生成的一条记录
+public:
+	CharString url;//网页
+	CharString category;//发帖大类
+	CharString subclass;//发帖小类
+	CharString title;//发帖标题
+	CharString content;//发帖内容
+	CharString userName;//发帖人
+	CharString date;//发帖日期
+	CharString type;//发帖类型
+	friend std::ostream& operator<<(std::ostream& out, const Record& record);
+};
+
 class WebsiteProcessor//网页处理类
 {
 private:

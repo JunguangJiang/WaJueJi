@@ -40,7 +40,7 @@ public:
 	bool operator==(const char* string);//判等，判断当前字符串和另外一个字符数组是否相等
 	char& operator[](int i){return _elem[i];}//返回第i个元素的引用
 
-	friend std::ostream& operator <<(std::ostream& out, CharString&);//重载输出流
+	friend std::ostream& operator<<(std::ostream& out, const CharString&);//重载输出流
 	
 	//---------------------------提供的静态操作----------------------------------------------------
 	char operator[](int i)const {return _elem[i];}//返回第i个元素的拷贝

@@ -4,6 +4,7 @@ using namespace std;
 #include <fstream>
 #include <string>
 #include "Stack.h"
+#include <vector>
 
 //---------------用于curl----------------
 #include <Windows.h>      
@@ -14,8 +15,22 @@ using namespace std;
 #pragma comment(lib, "winmm.lib")       
  //---------------用于curl----------------
  
+
+ostream& operator<<(ostream& out, const Record& record){
+		out << "url "<< record.url << endl;
+		out << "category " << record.category<<endl;
+		out << "subclass "<<record.subclass <<endl;
+		out << "title " << record.title <<endl;
+		//out << "content "<< record.content<<endl;
+		out << "userName "<< record.userName << endl;
+		out << "date " << record.date << endl;
+		out << "type " << record.type << endl;
+		return out;
+}
+
 WebsiteProcessor::WebsiteProcessor(void)
 {
+	setlocale(LC_ALL, "chs");
 }
 
 
@@ -67,7 +82,7 @@ NodePosi WebsiteProcessor::readOnePairOfBracket(const CharString& string, int& i
 
 	CharString sub;
 	string.subString(node->left, node->right+1, sub);//求取原来字符串在上述左右括号间的子串
-	cout << sub << endl;
+	//cout << sub << endl;
 	if(sub[1] == '/'){
 		node->matchingType = Right;
 	}else if(sub[sub.size()-2] == '/' || sub[1] == '!'){
@@ -111,40 +126,71 @@ void WebsiteProcessor::processHtml(const CharString& htmlText, std::ofstream& ou
 		
 		Stack<CharString> divClassStack;//存储当前位置外层的所有div的class
 		divClassStack.push(CharString(""));//在栈底加一个哨兵
+
 		Stack<NodePosi> nodeStack;//存储已经所有节点类型为左界的节点，并且这些节点对应的右界都还没有扫描到
+
+		vector<shared_ptr<CharString>> z_a;//发帖大类，发帖小类、发帖标题
+		vector<shared_ptr<CharString>> tfsz_p;//正文
+		vector<shared_ptr<CharString>> authi_a;//发帖人
+		vector<shared_ptr<CharString>> authi_em;//发帖日期
+		vector<shared_ptr<CharString>> tszh1_a;//发帖分类、发帖标题
+		
+		Record record;
+		record.url = htmlText;
 
 		for(int i=0; i<string.size(); ){
 			i = getFirstLeftBracket(string, i);//找到第一个左括号
+			if(i<0) break;
 			NodePosi node = readOnePairOfBracket(string, i);//读入一对匹配的括号所构成的节点,并且i被自动更新到右括号右边的位置
 			switch (node->matchingType)//根据节点的类型,若当前节点是
 			{
 			case SelfMatched://自匹配，不做处理
-				cout << "selfMatched"<<endl;
+				//cout << "selfMatched"<<endl;
 				break;
 			case Left://左界
-				cout <<"left"<<endl;
+				//cout <<"left"<<endl;
 				if(node->m_tag == "div"){//若节点的标签是"div"
 					divClassStack.push(node->m_class);//则记录节点的class
 				}
 				nodeStack.push(node);//并将节点压栈
 				break;
 			case Right://右界
-				cout << "right"<<endl;
+				//cout << "right"<<endl;
 				if(nodeStack.empty()){//假如栈中还没有节点，则不做任何处理
-					cout << "error in  match"<<endl;
+					std::cout << "error in  match"<<endl;
 					break;
 				}else if(nodeStack.top()->m_tag == "a"){//若节点的标签是"a"
-					if(divClassStack.top() == "z"){
-						unique_ptr<CharString> content(new CharString);
+					if(divClassStack.top() == "z"){//对应发帖大类、发帖小类、发帖标题
+						shared_ptr<CharString> content(new CharString);
 						string.subString(nodeStack.top()->right+1, node->left, *content);
-						//cout << *(content)<<endl;
+						z_a.push_back(content);
+						std::cout << "z " << *(content)<<endl;
+					}else if(divClassStack.top() == "ts z h1"){//对应发帖发帖分类、发帖标题
+						shared_ptr<CharString> content(new CharString);
+						string.subString(nodeStack.top()->right+2, node->left-1, *content);//此处将外侧的"[" "]"一并去除了
+						tszh1_a.push_back(content);
+						//std::cout << "ts z h1 " << *(content)<<endl;
+					}else if(divClassStack.top() == "authi"){//对应发帖人
+						shared_ptr<CharString> content(new CharString);
+						string.subString(nodeStack.top()->right+1, node->left, *content);
+						authi_a.push_back(content);
+						//std::cout << "authi a " << *(content)<<endl;
 					}
-				}else if(nodeStack.top()->m_tag == "p"){
-
-				}else if(nodeStack.top()->m_tag == "enum"){
-
+				}else if(nodeStack.top()->m_tag == "p"){//对应发帖内容
+					if(divClassStack.top() == "t_fsz"){
+						shared_ptr<CharString> content(new CharString);
+						string.subString(nodeStack.top()->right+1, node->left, *content);
+						//tfsz_p.push_back(content);
+						//std::cout << "tfsz p " << *(content)<<endl;
+					}
+				}else if(nodeStack.top()->m_tag == "em"){//对应发帖日期
+					if(divClassStack.top() == "authi"){
+						shared_ptr<CharString> content(new CharString);
+						string.subString(nodeStack.top()->right+7, node->left-9, *content);
+						authi_em.push_back(content);
+						//std::cout << "authi em " << *(content)<<endl;
+					}
 				}else if(nodeStack.top()->m_tag == "div"){
-					cout << "Pop div"<<endl;
 					divClassStack.pop();
 				}
 				nodeStack.pop();//节点出栈
@@ -153,7 +199,52 @@ void WebsiteProcessor::processHtml(const CharString& htmlText, std::ofstream& ou
 				break;
 			}
 		}
+		if(z_a.size()<5 || tszh1_a.empty() || authi_a.empty() || authi_em.empty()//对于无法或者信息的情况
+			//|| tfsz_p.empty()
+				){
+				out << endl;
+				return;
+		}
+		record.category = *z_a[2];//大类
+		record.subclass = *z_a[3];//小类
+		record.title = *z_a[4];//标题
+		record.type = *tszh1_a[0];//类型
+		record.userName = *authi_a[0];//发帖人
+		record.date = *authi_em[0];//发帖日期
+		//record.content = *tfsz_p[0];//发帖内容，编码问题尚未解决
+
+		cout << record;
 		
-		cout << string;
+		out << record.category << "," << record.subclass << "," << record.title << ","
+			/*<< record.content << ","*/ << record.userName << "," << record.date << "," 
+			<< record.type //此处之后加入分词结果
+			<< endl;
+	}
+}
+
+
+void WebsiteProcessor::readURL(std::ifstream& in, CharString& url)//读入输入流in中的网页，得到网页的url
+{
+	string temp;
+	getline(in, temp);//输入文件中的一行
+	CharString line(temp);//将其转化为CharString
+	int left = line.indexOf("\"",0);//找到左引号的位置
+	int right = line.indexOf("\"", left+1);//找到右引号的位置
+	line.subString(left+1, right, url);//截取引号之间的内容存到url中
+}
+
+void WebsiteProcessor::process(std::ifstream& in, std::ofstream& out){//处理输入流in中的所有网页，并将结果输出到输出流out中
+	string temp;
+	getline(in, temp);//第一行的内容无用
+	out << "\"序号\",\"网址\",\"发帖大类\",\"发帖小类\",\"发帖标题\",\"发帖内容\",\"发帖人\",\"发帖日期\",\"发帖类型\",\"分词结果\"";
+	out << endl;
+	int id = 1;
+	while(!in.eof()){
+		CharString url;
+		readURL(in, url);//读入网页的url
+		CharString filename;//本地文件
+		downloadWebsite(url, filename);//将网页下载到本地文件filename
+		out << id++ << "," << url << "," ;//先输出序号和网页url
+		processHtml(filename, out);//然后处理本地文件filename，将处理后的信息输出到输出流
 	}
 }
