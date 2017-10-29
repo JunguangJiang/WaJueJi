@@ -9,7 +9,7 @@ using namespace std;
 #include "Stack.h"
 #include "CharString.h"
 #include "WebsiteProcessor.h"
-
+#include <fstream>
 
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -18,8 +18,10 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	WebsiteProcessor websiteProcessor;
 	CharString filename;
-	websiteProcessor.downloadWebsite(string, filename);
-
+	//websiteProcessor.downloadWebsite(string, filename);
+	filename = "temp.txt";
+	ofstream out("save.txt");
+	websiteProcessor.processHtml(filename, out);
 	return 0;
 }
 

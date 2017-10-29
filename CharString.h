@@ -20,12 +20,13 @@ public:
 	~CharString(void);//析构函数
 
 	//---------------------------要求实现的方法----------------------------------------------------
-	int indexOf(const CharString& subString, int pos);
+	int indexOf(const CharString& subString, const int pos)const;
 	//在目标字符串中,从pos的位置开始查找子串,
 	//并返回子串第一次出现的位置。如果不存在子串,那么返回-1。
+	int indexOf(const char* subString, const int pos)const;
 
-	bool subString(int pos, int length, CharString& sub);
-	//将原字符串[pos,pos+length)的子串拷贝到sub中
+	bool subString(int pos, int length, CharString& sub)const;
+	//将原字符串[left,right)的子串的拷贝到sub中	
 	
 	void concat(const CharString& string);
 	//将另外一个字符串string接到当前字符串的末尾

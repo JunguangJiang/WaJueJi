@@ -1,6 +1,7 @@
 #pragma once
 #include "CharString.h"
 #include <iostream>
+#include <memory>
 
 enum MatchingType{//括号匹配的类型
 	SelfMatched, //自我匹配，形如<**/>
@@ -14,15 +15,16 @@ struct Node{//html文本中的节点
 	int left;//左括号在文本中的位置
 	int right;//右括号在文本中的位置
 	MatchingType matchingType;//括号匹配的类型
+	Node(){m_tag=""; m_class="";}
 };
 
-typedef Node* NodePosi;//节点位置
+typedef std::shared_ptr<Node> NodePosi;//节点位置
 
 class WebsiteProcessor//网页处理类
 {
 private:
 public://暂时作为public！！！
-	NodePosi readOnePairOfBracket(const CharString& string, int i);
+	NodePosi readOnePairOfBracket(const CharString& string, int& i);
 	//从字符串string的第i个位置开始读取一对匹配的括号，并返回这对括号组成的节点，未完成
 
 	int getFirstLeftBracket(const CharString& string, int i);

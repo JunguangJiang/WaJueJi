@@ -55,7 +55,7 @@ int* buildNext(const CharString& subString){//生成子串subString对应的next表
 	return next;
 }
 
-int CharString::indexOf(const CharString& subString, int pos){
+int CharString::indexOf(const CharString& subString, const int pos)const{
 	//在目标字符串中,从pos的位置开始查找子串,
 	//并返回子串第一次出现的位置。如果不存在子串,那么返回-1。
 
@@ -75,9 +75,15 @@ int CharString::indexOf(const CharString& subString, int pos){
 		return -1;
 }
 
-bool CharString::subString(int pos, int length, CharString& sub){//将原字符串[pos,pos+length)的子串的拷贝到sub中
+int CharString::indexOf(const char* subString, const int pos)const{
+	CharString sub(subString);
+	return indexOf(sub, pos);
+}
+
+
+bool CharString::subString(int left, int right, CharString& sub)const{//将原字符串[left,right)的子串的拷贝到sub中
 	sub._size = 0;
-	for(int i=pos; i<pos+length; i++){
+	for(int i=left; i<right; i++){
 		sub.insert(_elem[i]);
 	}
 	return true;
