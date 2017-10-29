@@ -82,6 +82,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CharString.h" />
+    <ClInclude Include="CharStringLink.h" />
+    <ClInclude Include="Dictionary.h" />
     <ClInclude Include="Stack.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -89,6 +91,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CharString.cpp" />
+    <ClCompile Include="CharStringLink.cpp" />
+    <ClCompile Include="Dictionary.cpp" />
     <ClCompile Include="Project.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

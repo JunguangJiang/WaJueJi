@@ -36,9 +36,8 @@ public:
 class WebsiteProcessor//网页处理类
 {
 private:
-public://暂时作为public！！！
 	NodePosi readOnePairOfBracket(const CharString& string, int& i);
-	//从字符串string的第i个位置开始读取一对匹配的括号，并返回这对括号组成的节点，未完成
+	//从字符串string的第i个位置开始读取一对匹配的括号，并返回这对括号组成的节点
 
 	int getFirstLeftBracket(const CharString& string, int i);
 	//获得字符串string从第i个位置起第一个左括号的位置
@@ -49,11 +48,14 @@ public://暂时作为public！！！
 	void processHtml(const CharString& htmlText, std::ofstream& out);
 	//处理本地文件htmlText，并将结果输出到out中 
 
-	void readURL(std::ifstream& in, CharString& url);//读入输入流in中的网页，得到网页的url
+	void readURL(std::ifstream& in, CharString& url);
+	//读入输入流in中的网页，得到网页的url
 
 public:
 	WebsiteProcessor(void);
 	~WebsiteProcessor(void);
-	void process(std::ifstream& in, std::ofstream& out);//处理输入流in中的所有网页，并将结果输出到输出流out中
+
+	void process(std::ifstream& in, std::ofstream& out);
+	//处理输入流in中的所有网页，并将结果输出到输出流out中
 };
 

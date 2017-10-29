@@ -6,6 +6,10 @@ inline int max(int a, int b){//返回整数的最大值
 	return (a<b)?b:a;
 }
 
+inline int min(int a, int b){//返回整数的最小值
+	return (a<b)?a:b;
+}
+
 CharString::CharString(int capacity)://字符串的初始化
 	_capacity(capacity), _size(0)
 {
@@ -133,6 +137,17 @@ bool CharString::operator==(const char* string){//判等，判断当前字符串是否和另外
 		return false;//那么肯定不相等
 	
 	for(int i=0; i<m; i++){//假如
+		if(_elem[i] != string[i])//每个字符都相等
+			return false;
+	}
+	return true;//则两个字符串相等
+}
+
+bool CharString::operator==(const CharString& string){//判等，判断当前字符串是否和另外一个字符串string相等
+	if(_size != string.size())//如果大小都不相等
+		return false;//那么肯定不相等
+
+	for(int i=0; i<_size; i++){//假如
 		if(_elem[i] != string[i])//每个字符都相等
 			return false;
 	}

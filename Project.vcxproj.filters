@@ -33,6 +33,12 @@
     <ClInclude Include="WebsiteProcessor.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="CharStringLink.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Dictionary.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -45,6 +51,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="WebsiteProcessor.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CharStringLink.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Dictionary.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

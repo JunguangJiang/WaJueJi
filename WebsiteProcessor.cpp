@@ -30,7 +30,6 @@ ostream& operator<<(ostream& out, const Record& record){
 
 WebsiteProcessor::WebsiteProcessor(void)
 {
-	setlocale(LC_ALL, "chs");
 }
 
 
@@ -135,63 +134,64 @@ void WebsiteProcessor::processHtml(const CharString& htmlText, std::ofstream& ou
 		vector<shared_ptr<CharString>> authi_em;//发帖日期
 		vector<shared_ptr<CharString>> tszh1_a;//发帖分类、发帖标题
 		
-		Record record;
-		record.url = htmlText;
+		Record record;//一条记录
+		record.url = htmlText;//修改记录的url
 
 		for(int i=0; i<string.size(); ){
 			i = getFirstLeftBracket(string, i);//找到第一个左括号
-			if(i<0) break;
-			NodePosi node = readOnePairOfBracket(string, i);//读入一对匹配的括号所构成的节点,并且i被自动更新到右括号右边的位置
+			if(i<0)//如果此时已经找不到多余的括号了，
+				break;//则停止查找
+			
+			NodePosi node = readOnePairOfBracket(string, i);
+			//读入一对匹配的括号所构成的节点,并且i被自动更新到右括号右边的位置
+			
 			switch (node->matchingType)//根据节点的类型,若当前节点是
 			{
 			case SelfMatched://自匹配，不做处理
-				//cout << "selfMatched"<<endl;
 				break;
 			case Left://左界
-				//cout <<"left"<<endl;
 				if(node->m_tag == "div"){//若节点的标签是"div"
 					divClassStack.push(node->m_class);//则记录节点的class
 				}
 				nodeStack.push(node);//并将节点压栈
 				break;
 			case Right://右界
-				//cout << "right"<<endl;
-				if(nodeStack.empty()){//假如栈中还没有节点，则不做任何处理
+				if(nodeStack.empty()){//假如栈中没有节点,说明出现问题
 					std::cout << "error in  match"<<endl;
 					break;
 				}else if(nodeStack.top()->m_tag == "a"){//若节点的标签是"a"
-					if(divClassStack.top() == "z"){//对应发帖大类、发帖小类、发帖标题
-						shared_ptr<CharString> content(new CharString);
-						string.subString(nodeStack.top()->right+1, node->left, *content);
-						z_a.push_back(content);
-						std::cout << "z " << *(content)<<endl;
-					}else if(divClassStack.top() == "ts z h1"){//对应发帖发帖分类、发帖标题
-						shared_ptr<CharString> content(new CharString);
-						string.subString(nodeStack.top()->right+2, node->left-1, *content);//此处将外侧的"[" "]"一并去除了
-						tszh1_a.push_back(content);
+					if(divClassStack.top() == "z"){//并且所在的div为z，则
+						shared_ptr<CharString> content(new CharString);//对应发帖大类、发帖小类、发帖标题
+						string.subString(nodeStack.top()->right+1, node->left, *content);//取得文本内容
+						z_a.push_back(content);//将其存储在z_a中
+						//std::cout << "z " << *(content)<<endl;
+					}else if(divClassStack.top() == "ts z h1"){//并且所在的div为ts z h1,则
+						shared_ptr<CharString> content(new CharString);//对应发帖分类、发帖标题
+						string.subString(nodeStack.top()->right+2, node->left-1, *content);//此处将外侧的"[" "]"一并去除了,得到文本内容
+						tszh1_a.push_back(content);//将其存储在tszh1_a中
 						//std::cout << "ts z h1 " << *(content)<<endl;
-					}else if(divClassStack.top() == "authi"){//对应发帖人
-						shared_ptr<CharString> content(new CharString);
-						string.subString(nodeStack.top()->right+1, node->left, *content);
-						authi_a.push_back(content);
+					}else if(divClassStack.top() == "authi"){//并且所在的div为authi，则
+						shared_ptr<CharString> content(new CharString);//对应发帖人
+						string.subString(nodeStack.top()->right+1, node->left, *content);//取得文本内容
+						authi_a.push_back(content);//将其存储在authi_a中
 						//std::cout << "authi a " << *(content)<<endl;
 					}
-				}else if(nodeStack.top()->m_tag == "p"){//对应发帖内容
-					if(divClassStack.top() == "t_fsz"){
-						shared_ptr<CharString> content(new CharString);
-						string.subString(nodeStack.top()->right+1, node->left, *content);
-						//tfsz_p.push_back(content);
+				}else if(nodeStack.top()->m_tag == "p"){//如果是标签为p
+					if(divClassStack.top() == "t_fsz"){//并且所在的div为t_fsz,则
+						shared_ptr<CharString> content(new CharString);//对应发帖内容
+						string.subString(nodeStack.top()->right+1, node->left, *content);//将发帖内容存在
+						//tfsz_p.push_back(content);//tfsz_p中，Note：此处p内文本未能解码！！！
 						//std::cout << "tfsz p " << *(content)<<endl;
 					}
-				}else if(nodeStack.top()->m_tag == "em"){//对应发帖日期
-					if(divClassStack.top() == "authi"){
-						shared_ptr<CharString> content(new CharString);
-						string.subString(nodeStack.top()->right+7, node->left-9, *content);
-						authi_em.push_back(content);
+				}else if(nodeStack.top()->m_tag == "em"){//如果标签是em
+					if(divClassStack.top() == "authi"){//并且所在的div为authi，则
+						shared_ptr<CharString> content(new CharString);//对应发帖日期
+						string.subString(nodeStack.top()->right+7, node->left-9, *content);//截取日期段
+						authi_em.push_back(content);//将其存在authi_em中
 						//std::cout << "authi em " << *(content)<<endl;
 					}
-				}else if(nodeStack.top()->m_tag == "div"){
-					divClassStack.pop();
+				}else if(nodeStack.top()->m_tag == "div"){//如果标签是div
+					divClassStack.pop();//则最内层的div结束
 				}
 				nodeStack.pop();//节点出栈
 				break;
@@ -199,8 +199,8 @@ void WebsiteProcessor::processHtml(const CharString& htmlText, std::ofstream& ou
 				break;
 			}
 		}
-		if(z_a.size()<5 || tszh1_a.empty() || authi_a.empty() || authi_em.empty()//对于无法或者信息的情况
-			//|| tfsz_p.empty()
+		if(z_a.size()<5 || tszh1_a.empty() || authi_a.empty() || authi_em.empty()//对于无法获取信息的情况
+			//|| tfsz_p.empty()//发帖内容，编码问题尚未解决
 				){
 				out << endl;
 				return;
@@ -213,12 +213,15 @@ void WebsiteProcessor::processHtml(const CharString& htmlText, std::ofstream& ou
 		record.date = *authi_em[0];//发帖日期
 		//record.content = *tfsz_p[0];//发帖内容，编码问题尚未解决
 
-		cout << record;
+		//cout << record;//输出record到屏幕上，用作调试
 		
+		//将结果输出到输出流
 		out << record.category << "," << record.subclass << "," << record.title << ","
-			/*<< record.content << ","*/ << record.userName << "," << record.date << "," 
-			<< record.type //此处之后加入分词结果
+			/*<< record.content << "," 编码问题尚未解决*/ << record.userName << "," << record.date << "," 
+			<< record.type //Note:此处之后加入分词结果！！！
 			<< endl;
+
+		outfile.close();//关闭文件
 	}
 }
 
@@ -233,15 +236,19 @@ void WebsiteProcessor::readURL(std::ifstream& in, CharString& url)//读入输入流in
 	line.subString(left+1, right, url);//截取引号之间的内容存到url中
 }
 
-void WebsiteProcessor::process(std::ifstream& in, std::ofstream& out){//处理输入流in中的所有网页，并将结果输出到输出流out中
+void WebsiteProcessor::process(std::ifstream& in, std::ofstream& out){
+	//处理输入流in中的所有网页，并将结果输出到输出流out中
 	string temp;
-	getline(in, temp);//第一行的内容无用
-	out << "\"序号\",\"网址\",\"发帖大类\",\"发帖小类\",\"发帖标题\",\"发帖内容\",\"发帖人\",\"发帖日期\",\"发帖类型\",\"分词结果\"";
+	getline(in, temp);//读入的第一行的内容无用
+	//输出第一行内容
+	out << "\"序号\",\"网址\",\"发帖大类\",\"发帖小类\",\"发帖标题\"," ;
+	out << "\"发帖内容\",\"发帖人\",\"发帖日期\",\"发帖类型\",\"分词结果\"";
 	out << endl;
 	int id = 1;
-	while(!in.eof()){
+	while(!in.eof()){//一直输入到文件末尾
 		CharString url;
 		readURL(in, url);//读入网页的url
+		if(in.eof()) break;
 		CharString filename;//本地文件
 		downloadWebsite(url, filename);//将网页下载到本地文件filename
 		out << id++ << "," << url << "," ;//先输出序号和网页url
