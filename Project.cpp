@@ -5,7 +5,7 @@
 #include <iostream>
 #include <fstream>
 using namespace std;
-
+#include <string>
 #include "Stack.h"
 #include "CharString.h"
 #include "WebsiteProcessor.h"
@@ -56,14 +56,38 @@ int _tmain(int argc, _TCHAR* argv[])
 	//以下代码用于字典的检验
 	Dictionary dictionary;//新建一个词典
 	dictionary.init();//词典的初始化
-	cout << dictionary.search("挖机") << endl;//查询有无某个元素
+	//cout << dictionary.search("挖机") << endl;//查询有无某个元素
 	//cout << dictionary.search("拖拉机") << endl;
-	cout << dictionary.getMaxHtSize() << endl;//测试结果是48
+	//cout << dictionary.getMaxHtSize() << endl;//测试结果是48
 	//dictionary.print();
-	CharString string("求购卡特挖机");
-	dictionary.divideWord(string);
-	CharStringLinkPosi link = dictionary.divideWord(string);
-	link->print();
+	//CharString string("求购卡特挖机你好啊，不算数");
+	CharString string;
+	CharString inputFile = "./input/string.txt";
+	ifstream in; in.open(inputFile.data());//打开存储字符串的文件
+	if(!in){
+		cout << "error in open string.txt" <<endl;
+		exit(-1);
+	}else{
+		while(!in.eof()){
+			CharString temp;
+			in >> temp;
+			string.concat(temp);
+		}
+		
+	}
+	in.close();
+
+	CharStringLinkPosi link = dictionary.divideSentence(string);
+
+	CharString outputFile = "./output/string.txt";
+	ofstream out; out.open(outputFile.data());//打开存储字符串的文件
+	if(!out){
+		cout << "error in open string.txt" <<endl;
+		exit(-1);
+	}else{
+		link->printReverse(out);
+	}
+	out.close();
 	return 0;
 }
 

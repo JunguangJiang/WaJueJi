@@ -30,6 +30,17 @@ CharStringLink::~CharStringLink(void)
 	}
 }
 
+void CharStringLink::add(const CharString& data){//添加元素
+	add(data.data());
+}
+void CharStringLink::remove(const CharString& data){//删除值为data的元素，若删除成功，则返回true
+	remove(data.data());	
+}
+
+int CharStringLink::search(const CharString& data){//查找某个元素的位置，若失败则返回-1
+	return search(data.data());
+}
+
 void CharStringLink::add(const char* data){//加入data元素
 	StringNodePosi node = new StringNode(data);//创建一个新的节点
 	node->prev = tailer->prev; node->succ = tailer;//将其放置在末节点之后
@@ -84,11 +95,28 @@ bool CharStringLink::remove(const char* data){//删除值为data的元素，若删除成功，
 }
 
 
-void CharStringLink::print(){//打印所有的节点用作调试
+void CharStringLink::print(ostream& out){//打印所有的节点用作调试
 	StringNodePosi node = header->succ; 
 	while(node!=tailer){
-		cout << node->data << " | ";
+		out << node->data << " | ";
 		node = node->succ;
 	}
-	cout << endl;
+	out << endl;
+}
+
+void CharStringLink::printReverse(ostream& out){
+	StringNodePosi node = tailer->prev; 
+	while(node!=header){
+		out << node->data << " | ";
+		node = node->prev;
+	}
+	out << endl;
+}
+
+void CharStringLink::add(CharStringLinkPosi link){//加入另外一个字符串链表的所有元素
+	StringNodePosi node = link->header->succ;
+	while(node != link->tailer){
+		add(node->data.data());
+		node = node->succ;
+	}
 }

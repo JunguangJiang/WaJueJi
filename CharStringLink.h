@@ -26,12 +26,19 @@ public:
 	int size()const {return _size;}
 	CharStringLink(void);
 	~CharStringLink(void);
+	void add(const CharString& data);//添加元素
+	void remove(const CharString& data);//删除值为data的元素，若删除成功，则返回true
+	int search(const CharString& data);//查找某个元素的位置，若失败则返回-1
+
 	void add(const char* data);//添加元素
 	bool remove(const char* data);//删除值为data的元素，若删除成功，则返回true
 	bool remove(int i);//删除第i个元素，assert： 0 <= i < size
 	int search(const char* data);//查找某个元素的位置，若失败则返回-1
 
-	void print();//打印所有的元素，用作调试
+	void add(CharStringLinkPosi link);//加入另外一个字符串链表的所有元素
+
+	void print(std::ostream&);//打印所有的元素，用作调试
+	void printReverse(std::ostream&);//逆向打印
 };
 
 

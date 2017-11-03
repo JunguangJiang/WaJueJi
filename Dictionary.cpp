@@ -4,7 +4,32 @@
 #include <iostream>
 #include <string>
 #include <Windows.h>
+#include "Stack.h"
 using namespace std;
+
+static size_t hashCode(const char* string){//Éú³É×Ö·û´®µÄÑ­»·ÒÆÎ»É¢ÁĞÂë
+	unsigned int h = 0;//É¢ÁĞÂë
+	for(size_t n = strlen(string), i = 0; i < n; i++){
+		h = ( h << 5 ) | ( h >> 27 ); 
+		h += (unsigned int)string[i];//É¢ÁĞÂëÑ­»·×óÒÆ5Î»£¬ÔÙÀÛ¼Óµ±Ç°×Ö·û
+	}
+	return (size_t) h ;
+}
+
+bool inline isASCII(char c){//ÅĞ¶ÏÄ³¸ö×Ö·ûÊÇ·ñÊÇASCIIÂë:Ä¿Ç°½«×ÖÄ¸¡¢Êı×Ö¡¢Ó¢ÎÄµÄ±êµã·ûºÅ¶¼Ëã×÷´ËÁĞ£¬²»¿¼ÂÇ»»ĞĞ·ûµÈ
+	int d = (int)c;
+	return (d<127)&&(d>31);//ASCII±íÖĞµÄÒ»Ğ©×Ö·û
+}
+
+bool inline isEnglishLetter(char c){//ÅĞ¶ÏÄ³¸ö×Ö·ûÊÇ·ñÊÇÓ¢ÎÄ×ÖÄ¸
+	int d = (int) c;
+	return ( ( ( d>=65 ) && ( d <= 90 ) ) || ( ( d>=97 ) && ( d<=122 ) ) );
+}
+
+bool inline isNumber(int c){//ÅĞ¶ÏÄ³¸ö×Ö·ûÊÇ·ñÊÇÊı×Ö
+	int d = (int) c;
+	return ( (c>=48) && (c<=57) );
+}
 
 Dictionary::Dictionary(int c)
 {
@@ -23,9 +48,16 @@ Dictionary::~Dictionary(void)
 	delete [] ht; ht = NULL;
 }
 
+void Dictionary::put(const CharString& word){//²åÈë´ÊÌõ
+	put(word.data());
+}
+
+bool Dictionary::search(const CharString& word){//²éÑ¯Ä³¸ö´ÊÊÇ·ñÔÚ´ÊµäÖĞ
+	return search(word.data());
+}
+
 void Dictionary::put(const char* word){//²åÈë´ÊÌõ
 	size_t  h = hashCode(word) % M;//µÃµ½¸Ã×Ö·û´®µÄhashÂë
-	//cout << h <<endl;
 	ht[h]->add(word);//ÔÚhashÂë¶ÔÓ¦µÄ×Ö·û´®Á´±íÄ©Î²¼ÓÈë´ÊÌõ
 	N++;//¹æÄ£¼ÓÒ»
 }
@@ -76,7 +108,6 @@ void Dictionary::download(const char* vocabularyFile, bool isUTF8){//ÏÂÔØ±¾µØµÄÒ
 			string temp;//Ã¿¸ö´ÊÓï
 			in >> temp;
 			put(temp.c_str());//²¢½«Æä¼ÓÈë´ÊµäÖĞ
-			cout << temp << endl;
 		}
 	}
 	in.close();
@@ -87,7 +118,7 @@ void Dictionary::init(){//´ÊµäµÄ³õÊ¼»¯
 	download("./Dictionary/professionalTerms.dic", false);
 }
 
-int Dictionary::getMaxHtSize(){
+int Dictionary::getMaxHtSize(){//»ñµÃ×î´óÍ°µÄ¹æÄ££¬ÓÃÓÚĞÔÄÜµÄ·ÖÎö
 	int max=0;
 	for(int i=0; i<M; i++){
 		if(ht[i]->size() > max)
@@ -96,45 +127,77 @@ int Dictionary::getMaxHtSize(){
 	return max;
 }
 
-void Dictionary::print(){
+void Dictionary::print(){//´òÓ¡ËùÓĞµÄÍ°£¬ÓÃÓÚĞÔÄÜ·ÖÎö
 	for(int i=0; i<M;i++){
 		cout << "chap "<< i;
-		ht[i]->print();
+		ht[i]->print(cout);
 	}
 }
 
+CharStringLinkPosi Dictionary::divideSentence(const CharString& sentence){
+	//¶ÔÒ»¸ö¾ä×Ó½øĞĞ·Ö´Ê£¬ÔÊĞíÆäÖĞ³öÏÖ±êµã·ûºÅ¡¢Êı×Ö¡¢Ó¢ÎÄ×Ö·û£¬´ÓÖĞÌáÈ¡³öÖĞÎÄ¹Ø¼ü´Ê
+	//ºöÂÔËùÓĞµÄ±êµã·ûºÅ¡¢Êı×Ö¡¢Ó¢ÎÄ×Ö·û
+	CharStringLinkPosi link(new CharStringLink());//ĞÂ½¨Ò»¸ö×Ö·û´®Á´±í,´æ´¢¾ä×ÓµÄ·Ö´Ê½á¹û
+	Stack<CharString> S;//´æ´¢ËùÓĞµÄ¶ÌÓï
 
-CharStringLinkPosi Dictionary::divideWord(const CharString& string){
-//½«string°´ÕÕµ±Ç°¼ÓÔØµÄ´Ê¿â½øĞĞ·Ö´Ê£¬²¢ÒÔ×Ö·û´®Á´±íµÄĞÎÊ½·µ»Ø½á¹û
+	int left =-1, right = 0;//left±íÊ¾ÉÏÒ»´Î
+	while(right < sentence.size()){//±éÀúÕû¸ö¾ä×Ó
+		if(isASCII(sentence[right])){//Èç¹ûµ±Ç°×Ö·ûÊÇASCII×Ö·û
+			if( (left+1) < right ){//Èç¹û[left+1,right)Ö®¼ä´æÔÚGB×Ö·û(¶ÌÓï£©
+				CharString string; sentence.subString(left+1, right,string);//½«ÆäÈ¡³ö
+				S.push(string);//²¢¼ÓÈëÕ»ÖĞ
+			}
+			left = right;//left±ê¼ÇÉÏÒ»´ÎÕÒµ½µÄÍ£ÓÃ´ÊÎ»ÖÃ
+			right++;//²é¿´ÏÂÒ»¸ö×Ö·û
+		}else{
+			right += 2;//ËµÃ÷µ±Ç°×Ö·ûÊÇGBÂë£¬²é¿´ÏÂÏÂÒ»¸ö×Ö·û
+		}
+	}
+	if( (left+1) < right){//¼ÓÈë×îºóÒ»¸ö¶ÌÓï
+		CharString string; sentence.subString(left+1, right, string);
+		S.push(string);
+	}
+
+	while(!S.empty()){//´ÓÕ»ÖĞÈ¡³öËùÓĞµÄ¶ÌÓï
+		CharString string = S.top(); S.pop();
+		CharStringLinkPosi tempLink = dividePhrase(string);//¶ÔÆä·Ö´Ê£¬½«¾Ö²¿·Ö´Ê½á¹û´æÈëtempLink
+		if(tempLink->size()>0)
+			link->add(tempLink);//½«¾Ö²¿·Ö´Ê½á¹ûtempLink¼ÓÈë×ÜµÄ·Ö´Ê½á¹ûlinkÖĞ
+	}
+	return link;
+}
+
+CharStringLinkPosi Dictionary::dividePhrase(const CharString& phrase){
+//½«phrase°´ÕÕµ±Ç°¼ÓÔØµÄ´Ê¿â½øĞĞ·Ö´Ê£¬²¢ÒÔ×Ö·û´®Á´±íµÄĞÎÊ½·µ»Ø½á¹û
+//²ÉÓÃÄæĞò×î´ó·Ö´ÊËã·¨
 	CharStringLinkPosi link(new CharStringLink());//ĞÂ½¨Ò»¸ö×Ö·û´®Á´±í
-	//CharStringLinkPosi link = new CharStringLink();
-	//CharStringLink link;
 	
-	int left, right = string.size();//×Ó´®µÄ×óÓÒ½ç
-	while(right > 0){
+	int left, right = phrase.size();//left,rightÊÇ×Ó´®µÄ×óÓÒ½ç
+	while(right > 0){//±éÀúÕû¸öphrase
 		left = max(right-MaxWordLength, 0);//×Ó´®µÄ×ó½ç
 		while(left < right){
 			CharString subString;//×Ó´®
-			string.subString(left, right, subString);//subString = string[left, right)
-			cout << subString << endl;
-			if( search( subString.data() ) ){//Èç¹ûsubStringÊÇÒ»¸ö´Ê
-				link->add(subString.data());//½«subString¼ÓÈë×Ö·û´®Á´±í
+			phrase.subString(left, right, subString);//subString = phrase[left, right)
+			if( search( subString) ){//Èç¹ûsubStringÊÇÒ»¸ö´Ê
+				link->add(subString);//½«subString¼ÓÈë×Ö·û´®Á´±í
 				break;
 			}else{//Èç¹ûsubString²»ÊÇÒ»¸ö´Ê
 				left+=2;//Ôò×ó½çÏòÓÒÒÆ¶¯Ò»¸öºº×Ö
 			}
 		}
 
-		//Note:Èç¹û´ËÊ±left==right£¬ÔòÄÚ²ãÑ­»·ÖĞÊ¼ÖÕÃ»ÓĞÕÒµ½Ò»¸ö´Ê,²¢ÇÒ[left-2,right)²¢²»ÊÇÒ»¸ö´ÊµäÖĞµÄ´Ê£¬´Ë´¦ÔİÊ±½«Æä¼ÓÈëÁ´±í
-		//Note:Èç¹û´ËÊ±left!=right,ÔòÕÒµ½ÁË´Ê[left,right)
 		if(left == right){
+			//Note:Èç¹û´ËÊ±left==right£¬ÔòÄÚ²ãÑ­»·ÖĞÊ¼ÖÕÃ»ÓĞÕÒµ½Ò»¸ö´Ê,
+			//²¢ÇÒ[left-2,right)²¢²»ÊÇÒ»¸ö´ÊµäÖĞµÄ´Ê£¬´Ë´¦ÔİÊ±²»½«Æä¼ÓÈëÁ´±í
+			/*
 			CharString subString;//×Ó´®
 			string.subString(left-2, right, subString);//subString = string[left-2, right)
 			link->add(subString.data());
 			cout << subString << endl;
-
+			*/
 			right = left-2;
 		}else{
+			//Note:Èç¹û´ËÊ±left!=right,ÔòÕÒµ½ÁË´Ê[left,right)
 			right = left;
 		}
 	}

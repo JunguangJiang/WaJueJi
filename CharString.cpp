@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "CharString.h"
+#include <string>
+#include <fstream>
 using namespace std;
 
 inline int max(int a, int b){//·µ»ØÕûÊıµÄ×î´óÖµ
@@ -134,6 +136,14 @@ std::ostream& operator <<(std::ostream& out, const CharString& string){//ÖØÔØÊä³
 	return out;
 }
 
+std::ifstream& operator>>(std::ifstream& in, CharString& string){//ÖØÔØÎÄ¼şÊäÈëÁ÷
+	string._size = 0;
+	std::string temp;
+	in >> temp;
+	string = temp;
+	return in;
+}
+
 char* CharString::data() const{//·µ»Øµ±Ç°×Ö·û´®´æ´¢µÄ×Ö·ûÊı×é
 	char* data = new char[_size+1];
 	for(int i=0; i<_size; i++){
@@ -164,4 +174,20 @@ bool CharString::operator==(const CharString& string){//ÅĞµÈ£¬ÅĞ¶Ïµ±Ç°×Ö·û´®ÊÇ·ñ
 			return false;
 	}
 	return true;//ÔòÁ½¸ö×Ö·û´®ÏàµÈ
+}
+
+void CharString::remove(int i){//É¾³ıµÚi¸ö×Ö·û
+	//Note:0<= i < size
+	for(int j = i; j<size()-1; j++){
+		_elem[j] = _elem[j+1];
+	}
+	_size--;
+}
+
+void CharString::removeSpace(){//É¾³ı×Ö·û´®ÖĞµÄËùÓĞ¿Õ¸ñ
+	for(int i=0; i<size(); i++){
+		if(_elem[i] == ' '){
+			remove(i);
+		}
+	}
 }

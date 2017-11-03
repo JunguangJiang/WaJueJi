@@ -37,13 +37,16 @@ public:
 
 	//---------------------------提供的动态操作----------------------------------------------------
 	void insert(char c);//在字符串末尾插入字符c
+	void remove(int i);//删除第i个字符
 	CharString& operator=(const std::string& s);//用stl中的string赋给当前字符串
 	bool operator==(const char* string);//判等，判断当前字符串和另外一个字符数组是否相等
 	bool operator==(const CharString& string);//判等，判断当前字符串和另外一个字符串是否相等
 	char& operator[](int i){return _elem[i];}//返回第i个元素的引用
 
 	friend std::ostream& operator<<(std::ostream& out, const CharString&);//重载输出流
-	
+	friend std::ifstream& operator>>(std::ifstream& in, CharString&);//重载文件输入流
+	void removeSpace();//删除字符串中的所有空格
+
 	//---------------------------提供的静态操作----------------------------------------------------
 	char operator[](int i)const {return _elem[i];}//返回第i个元素的拷贝
 	int size()const{return _size;}//返回规模

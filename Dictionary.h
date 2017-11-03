@@ -8,14 +8,6 @@ const int DictionaryCapacity = 10133;//´ÊµäµÄÄ¬ÈÏÈİÁ¿£¬Èç¹û¸Ä±ä´ÊµäµÄÊı¾İÀ´Ô´£¬´
 
 const int MaxWordLength = 16;//¹æ¶¨×î³¤µÄÖĞÎÄ´ÊÓï³¤¶ÈÊÇ8¸öºº×Ö
 
-static size_t hashCode(const char* string){//Éú³É×Ö·û´®µÄÑ­»·ÒÆÎ»É¢ÁĞÂë
-	unsigned int h = 0;//É¢ÁĞÂë
-	for(size_t n = strlen(string), i = 0; i < n; i++){
-		h = ( h << 5 ) | ( h >> 27 ); 
-		h += (unsigned int)string[i];//É¢ÁĞÂëÑ­»·×óÒÆ5Î»£¬ÔÙÀÛ¼Óµ±Ç°×Ö·û
-	}
-	return (size_t) h ;
-}
 
 class Dictionary//´Êµä
 {
@@ -24,19 +16,29 @@ private:
 	int M;//Í°Êı×éÈİÁ¿
 	int N;//´ÊÌõÊıÁ¿
 	void download(const char* vocabularyFile, bool isUTF8);//ÏÂÔØ±¾µØÒ»¸ö´Ê¿âÖĞµÄ´Ê»ã
+
 public:
 	Dictionary(int c = DictionaryCapacity);//´´½¨Ò»¸öÍ°Êı×éÈİÁ¿²»Ğ¡ÓÚcµÄ´Êµä
 	~Dictionary(void);//ÊÍ·ÅÍ°Êı×é¼°ÆäÖĞ¸÷·Ç¿ÕÔªËØËùÖ¸ÏòµÄ´ÊÌõ
 	void init();//´ÊµäµÄ³õÊ¼»¯
+	void put(const CharString& word);//²åÈë´ÊÌõ
+	bool search(const CharString& word);//²éÑ¯Ä³¸ö´ÊÊÇ·ñÔÚ´ÊµäÖĞ
 	void put(const char* word);//²åÈë´ÊÌõ
 	bool search(const char* word);//²éÑ¯Ä³¸ö´ÊÊÇ·ñÔÚ´ÊµäÖĞ
 	int size() const{return N;}//µ±Ç°´ÊÌõÊıÄ¿
 
-	CharStringLinkPosi divideWord(CharString& string);
-	//½«string°²×°µ±Ç°¼ÓÔØµÄ´Ê¿â½øĞĞ·Ö´Ê£¬²¢ÒÔ×Ö·û´®Á´±íµÄĞÎÊ½·µ»Ø½á¹û
+	CharStringLinkPosi dividePhrase(const CharString& phrase);
+	//¶ÔÒ»¸ö¶ÌÓï½øĞĞ·Ö´Ê£¬ÆäÖĞÖ»ÓĞÖĞÎÄ£¬·µ»ØÖĞÎÄ¹Ø¼ü´Ê×é³ÉµÄ×Ö·û´®Á´±í
+
+	CharStringLinkPosi divideSentence(const CharString& sentence);
+	//¶ÔÒ»¸ö¾ä×Ó½øĞĞ·Ö´Ê£¬ÔÊĞíÆäÖĞ³öÏÖ±êµã·ûºÅ¡¢Êı×Ö¡¢Ó¢ÎÄ×Ö·û£¬´ÓÖĞÌáÈ¡³öÖĞÎÄ¹Ø¼ü´Ê
 
 	//ÒÔÏÂÓÃ×÷µ÷ÊÔºÍĞÔÄÜ·ÖÎö
 	int getMaxHtSize();//·µ»Ø¹æÄ£×î´óµÄÍ°µÄ´óĞ¡
 	void print();//´òÓ¡Õû¸ö´Êµä
 };
+
+
+
+
 
