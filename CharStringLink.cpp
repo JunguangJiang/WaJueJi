@@ -18,8 +18,16 @@ CharStringLink::~CharStringLink(void)
 	while(_size>0){//删除所有的节点
 		remove(0);//直到规模为0
 	}
-	delete header; header = NULL;//然后删除头节点
-	delete tailer; tailer = NULL;//和尾节点
+	if(header){
+		header->succ = NULL; 
+		delete header; 
+		header = NULL;//然后删除头节点
+	}
+	if(tailer){
+		tailer->prev = NULL; 
+		delete tailer;
+		tailer = NULL;//和尾节点
+	}
 }
 
 void CharStringLink::add(const char* data){//加入data元素
@@ -40,7 +48,7 @@ bool CharStringLink::remove(int i){//删除第i个元素，assert： 0 <= i < size
 	node->prev->succ = node->succ;
 	node->succ->prev = node->prev;//将其前驱和后继相连
 	node->prev = NULL; node->succ = NULL;//将该元素
-	delete node;//删除
+	delete node; node = NULL;//删除
 	_size--;//规模减一
 	return true;
 }
@@ -65,7 +73,7 @@ bool CharStringLink::remove(const char* data){//删除值为data的元素，若删除成功，
 			node->succ->prev = node->prev;
 			node->prev = NULL;
 			node->succ = NULL;
-			delete node;//删除该节点
+			delete node; node = NULL;//删除该节点
 			_size--;//规模减一
 			return true;
 		}else{
@@ -79,7 +87,8 @@ bool CharStringLink::remove(const char* data){//删除值为data的元素，若删除成功，
 void CharStringLink::print(){//打印所有的节点用作调试
 	StringNodePosi node = header->succ; 
 	while(node!=tailer){
-		cout << node->data << endl;
+		cout << node->data << " | ";
 		node = node->succ;
 	}
+	cout << endl;
 }

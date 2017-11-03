@@ -18,6 +18,7 @@ public:
 	CharString(int capacity = minStringSize);//字符串的初始化，可以指定初始时的容量
 	CharString(const std::string& s);//用stl::string去初始化当前字符串
 	~CharString(void);//析构函数
+	CharString(const CharString& rhs);//拷贝构造函数
 
 	//---------------------------要求实现的方法----------------------------------------------------
 	int indexOf(const CharString& subString, const int pos)const;
@@ -25,7 +26,7 @@ public:
 	//并返回子串第一次出现的位置。如果不存在子串,那么返回-1。
 	int indexOf(const char* subString, const int pos)const;
 
-	bool subString(int pos, int length, CharString& sub)const;
+	bool subString(int left, int right, CharString& sub)const;
 	//将原字符串[left,right)的子串的拷贝到sub中	
 	
 	void concat(const CharString& string);

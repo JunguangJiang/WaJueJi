@@ -33,7 +33,9 @@ Stack<T>::Stack(void){
 
 template <typename T>
 Stack<T>::~Stack(void){
-	delete [] _elem;
+	if(_elem){
+		delete [] _elem; _elem = NULL;
+	}
 }
 
 template <typename T>
@@ -45,7 +47,7 @@ void Stack<T>::expand(){//栈空间不足时扩容
 	for(int i=0; i<_size; i++){
 		_elem[i] = oldElem[i];//复制数据元素
 	}
-	delete [] oldElem;//删除原来的空间
+	delete [] oldElem; oldElem = NULL;//删除原来的空间
 }
 
 template <typename T>

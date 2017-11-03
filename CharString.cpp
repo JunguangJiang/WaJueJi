@@ -25,8 +25,20 @@ CharString::CharString(const std::string& s){//用一个string去初始化CharString
 	_size = s.size();
 }
 
+CharString::CharString(const CharString& rhs){//拷贝构造函数
+	_capacity = max(rhs.size(), minStringSize);
+	_elem = new char[_capacity];
+	for(int i=0; i<rhs.size(); i++){
+		_elem[i] = rhs[i];
+	}
+	_size = rhs.size();
+}
+
 CharString::~CharString(void){//析构函数
-	delete [] _elem;
+	if(_elem){
+		delete [] _elem;
+		_elem = NULL;
+	}
 }
 
 void CharString::expand(){//扩容
@@ -37,7 +49,7 @@ void CharString::expand(){//扩容
 	for(int i=0; i<_size; i++){
 		_elem[i] = oldElem[i];//复制数据元素
 	}
-	delete [] oldElem;//删除原来的空间
+	delete [] oldElem; oldElem = NULL;//删除原来的空间
 }
 
 void CharString::insert(char c){//在字符串末尾插入字符c
@@ -72,7 +84,7 @@ int CharString::indexOf(const CharString& subString, const int pos)const{
 			j = next[j];
 		}
 	}
-	delete [] next;
+	delete [] next; next = NULL;
 	if(j == subString.size())//若匹配成功
 		return i-j;//返回匹配成功的位置
 	else//匹配失败
