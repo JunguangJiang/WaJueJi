@@ -4,6 +4,7 @@
 #include "Dictionary.h"
 #include <iostream>
 #include <memory>
+#include "Converter.h"
 
 enum MatchingType{//括号匹配的类型
 	SelfMatched, //自我匹配，形如<**/>
@@ -49,7 +50,7 @@ private:
 	void downloadWebsite(const CharString& url, CharString& filename); 
 	//下载url网页到本地文件filename
 	
-	void processHtml(const CharString& htmlText, std::ofstream& out, bool readWholeWebsite, bool removeUselessWords);
+	void processHtml(const CharString& htmlText, std::ofstream& out, bool removeUselessWords);
 	//处理本地文件htmlText，并将结果输出到out中 
 
 	void readURL(std::ifstream& in, CharString& url);
@@ -60,12 +61,11 @@ public:
 	WebsiteProcessor(void);
 	~WebsiteProcessor(void);
 
-	void process(std::ifstream& in, std::ofstream& out, bool readWholeWebsite, bool removeUselessWords);
+	void process(std::ifstream& in, std::ofstream& out, bool removeUselessWords);
 	//处理输入流in中的所有网页，并将结果输出到输出流out中
-	//如果readWholeWebsite为true，则会读完整个网页，但是效率会比较低；如果为false，则只要得到所需的信息后，就返回，效率较高
 	//如果removeUselessWords为true，则分词结果就会删除无用词；为false，则保留无用词
 
-	void extractInfo(CharString& inputFile, CharString& outputFile, bool readWholeWebsite, bool removeUselessWords);
+	void extractInfo(CharString& inputFile, CharString& outputFile, bool removeUselessWords);
 	//处理inputFile中的所有网页，将结果存储到outputFile中，失败的话返回false
 	
 	void initDictionary();//初始化词库

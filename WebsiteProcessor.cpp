@@ -79,9 +79,7 @@ NodePosi WebsiteProcessor::readOnePairOfBracket(const CharString& string, int& i
 	node->right = string.indexOf(">", i+1);//从i+1的位置开始找">"，找到的位置即为右括号的位置
 	i = node->right;//此后从右括号的右边开始找起
 
-	CharString sub;
-	string.subString(node->left, node->right+1, sub);//求取原来字符串在上述左右括号间的子串
-	//cout << sub << endl;
+	CharString sub = string.subString(node->left, node->right+1);//求取原来字符串在上述左右括号间的子串
 	if(sub[1] == '/'){
 		node->matchingType = Right;
 	}else if(sub[sub.size()-2] == '/' || sub[1] == '!'){
@@ -90,15 +88,15 @@ NodePosi WebsiteProcessor::readOnePairOfBracket(const CharString& string, int& i
 		node->matchingType = Left;
 		int j = sub.indexOf(" ", 1);//j指示子串中第一次出现空格的位置
 		if(j < 0){//如果空格不存在，
-			sub.subString(1, sub.size()-1, node->m_tag);//则两个括号之间只有标签的内容
+			node->m_tag = sub.subString(1, sub.size()-1);//则两个括号之间只有标签的内容
 		}else{//如果存在括号，
 			int k1 = sub.indexOf("class=", j+1);//k1指示类class的位置
 			if(k1 >= 0){//如果括号之间存在类，
 				k1 = sub.indexOf("\"", k1+1);//k1指示左引号的位置
 				int k2 = sub.indexOf("\"", k1+1);//k2指示右引号的位置
-				sub.subString(k1+1, k2, node->m_class);//[k1+1, k2)就是引号中的内容
+				node->m_class = sub.subString(k1+1, k2);//[k1+1, k2)就是引号中的内容
 			}
-			sub.subString(1, j, node->m_tag);//左括号与空格之间的为标签的内容
+			node->m_tag = sub.subString(1, j);//左括号与空格之间的为标签的内容
 		}
 	}
 	return node;
@@ -108,7 +106,7 @@ int WebsiteProcessor::getFirstLeftBracket(const CharString& string, int i){
 	return string.indexOf("<", i);
 }
 
-void WebsiteProcessor::processHtml(const CharString& htmlText, std::ofstream& out, bool readWholeWebsite, bool removeUselessWords){
+void WebsiteProcessor::processHtml(const CharString& htmlText, std::ofstream& out, bool removeUselessWords){
 	//处理本地文件htmlText，并将结果输出到out中 	
 	
 	ifstream outfile; //文件输出流
@@ -119,7 +117,7 @@ void WebsiteProcessor::processHtml(const CharString& htmlText, std::ofstream& ou
 	}else{
 		string temp( (istreambuf_iterator<char>(outfile)), istreambuf_iterator<char>() );
 		//从文件读取数据到stl字符串temp
-		CharString string(temp);//然后将其转化成CharString
+		CharString string;//然后将其转化成CharString
 
 		//-----------------接下来对字符串string进行处理----------------------------------
 		
@@ -162,33 +160,28 @@ void WebsiteProcessor::processHtml(const CharString& htmlText, std::ofstream& ou
 				}else if(nodeStack.top()->m_tag == "a"){//若节点的标签是"a"
 					if(divClassStack.top() == "z"){//并且所在的div为z，则
 						shared_ptr<CharString> content(new CharString);//对应发帖大类、发帖小类、发帖标题
-						string.subString(nodeStack.top()->right+1, node->left, *content);//取得文本内容
+						*content = string.subString(nodeStack.top()->right+1, node->left);//取得文本内容
 						z_a.push_back(content);//将其存储在z_a中
-						//std::cout << "z " << *(content)<<endl;
 					}else if(divClassStack.top() == "ts z h1"){//并且所在的div为ts z h1,则
 						shared_ptr<CharString> content(new CharString);//对应发帖分类、发帖标题
-						string.subString(nodeStack.top()->right+2, node->left-1, *content);//此处将外侧的"[" "]"一并去除了,得到文本内容
+						*content = string.subString(nodeStack.top()->right+2, node->left-1);//此处将外侧的"[" "]"一并去除了,得到文本内容
 						tszh1_a.push_back(content);//将其存储在tszh1_a中
-						//std::cout << "ts z h1 " << *(content)<<endl;
 					}else if(divClassStack.top() == "authi"){//并且所在的div为authi，则
 						shared_ptr<CharString> content(new CharString);//对应发帖人
-						string.subString(nodeStack.top()->right+1, node->left, *content);//取得文本内容
+						*content = string.subString(nodeStack.top()->right+1, node->left);//取得文本内容
 						authi_a.push_back(content);//将其存储在authi_a中
-						//std::cout << "authi a " << *(content)<<endl;
 					}
 				}else if(nodeStack.top()->m_tag == "p"){//如果是标签为p
 					if(divClassStack.top() == "t_fsz"){//并且所在的div为t_fsz,则
 						shared_ptr<CharString> content(new CharString);//对应发帖内容
-						string.subString(nodeStack.top()->right+1, node->left, *content);//将发帖内容存在
-						//tfsz_p.push_back(content);//tfsz_p中，Note：此处p内文本未能解码！！！
-						//std::cout << "tfsz p " << *(content)<<endl;
+						*content = string.subString(nodeStack.top()->right+1, node->left);//将发帖内容存在
+						tfsz_p.push_back(content);//tfsz_p中
 					}
 				}else if(nodeStack.top()->m_tag == "em"){//如果标签是em
 					if(divClassStack.top() == "authi"){//并且所在的div为authi，则
 						shared_ptr<CharString> content(new CharString);//对应发帖日期
-						string.subString(nodeStack.top()->right+7, node->left-9, *content);//截取日期段
+						*content = string.subString(nodeStack.top()->right+7, node->left-9);//截取日期段
 						authi_em.push_back(content);//将其存在authi_em中
-						//std::cout << "authi em " << *(content)<<endl;
 					}
 				}else if(nodeStack.top()->m_tag == "div"){//如果标签是div
 					divClassStack.pop();//则最内层的div结束
@@ -198,15 +191,10 @@ void WebsiteProcessor::processHtml(const CharString& htmlText, std::ofstream& ou
 			default:
 				break;
 			}
-
-			if(!readWholeWebsite && z_a.size()>=5 && 
-				!tszh1_a.empty() && authi_a.empty() && 
-				!authi_em.empty() ){//在加速模式下，只要找到了所需信息，就退出当前网页的搜索
-				break;
-			}
 		}
+
 		if(z_a.size()<5 || tszh1_a.empty() || authi_a.empty() || authi_em.empty()//对于无法获取信息的情况
-			//|| tfsz_p.empty()//发帖内容，编码问题尚未解决
+			|| tfsz_p.empty()//发帖内容
 				){
 				out << endl;
 				return;
@@ -217,15 +205,13 @@ void WebsiteProcessor::processHtml(const CharString& htmlText, std::ofstream& ou
 		record.type = *tszh1_a[0];//类型
 		record.userName = *authi_a[0];//发帖人
 		record.date = *authi_em[0];//发帖日期
-		//record.content = *tfsz_p[0];//发帖内容，编码问题尚未解决
-
-		//cout << record;//输出record到屏幕上，用作调试
+		record.content = UnicodeToChinese(*tfsz_p[0]);//发帖内容
 		
 		//将结果输出到输出流
 		out << record.category << "," << record.subclass << "," << record.title << ","
-			/*<< record.content << "," 编码问题尚未解决*/ << record.userName << "," << record.date << "," 
-			<< record.type << "," //Note:此处之后加入分词结果！！！
-			<< divideWords(record.title, removeUselessWords)//输出分词结果
+			<< record.content << "," << record.userName << "," << record.date << "," 
+			<< record.type << "," 
+			<< divideWords(record.title, removeUselessWords) << divideWords(record.content, removeUselessWords)//输出分词结果
 			<< endl;
 
 		outfile.close();//关闭文件
@@ -243,9 +229,8 @@ void WebsiteProcessor::readURL(std::ifstream& in, CharString& url)//读入输入流in
 	line.subString(left+1, right, url);//截取引号之间的内容存到url中
 }
 
-void WebsiteProcessor::process(std::ifstream& in, std::ofstream& out, bool readWholeWebsite, bool removeUselessWords){
+void WebsiteProcessor::process(std::ifstream& in, std::ofstream& out, bool removeUselessWords){
 	//处理输入流in中的所有网页，并将结果输出到输出流out中
-	//如果readWholeWebsite为true，则会读完整个网页，但是效率会比较低；如果为false，则只要得到所需的信息后，就返回，效率较高
 	//如果removeUselessWords为true，则分词结果就会删除无用词；为false，则保留无用词
 
 	string temp;
@@ -260,15 +245,17 @@ void WebsiteProcessor::process(std::ifstream& in, std::ofstream& out, bool readW
 		readURL(in, url);//读入网页的url
 		if(in.eof()) break;
 		CharString filename;//本地文件
+		cout << "downloading "<< url<<endl;
 		downloadWebsite(url, filename);//将网页下载到本地文件filename
 		out << id++ << "," << url << "," ;//先输出序号和网页url
-		processHtml(filename, out, readWholeWebsite, removeUselessWords);//然后处理本地文件filename，将处理后的信息输出到输出流
+		cout << "processing "<< url<<endl;
+		processHtml(filename, out, removeUselessWords);//然后处理本地文件filename，将处理后的信息输出到输出流
+		cout << "finishing "<< url<<endl;
 	}
 }
 
-void WebsiteProcessor::extractInfo(CharString& inputFile, CharString& outputFile, bool readWholeWebsite, bool removeUselessWords){
+void WebsiteProcessor::extractInfo(CharString& inputFile, CharString& outputFile, bool removeUselessWords){
 	//处理inputFile中的所有网页，将结果存储到outputFile中，失败的话返回false
-	//如果readWholeWebsite为true，则会读完整个网页，但是效率会比较低；如果为false，则只要得到所需的信息后，就返回，效率较高
 	//如果removeUselessWords为true，则分词结果就会删除无用词；为false，则保留无用词
 	ifstream in; in.open(inputFile.data());//打开存储网页url的文件
 	if(!in){
@@ -280,7 +267,7 @@ void WebsiteProcessor::extractInfo(CharString& inputFile, CharString& outputFile
 		cout << "error in open " << outputFile <<endl;
 		exit(-1);
 	}
-	process(in, out, readWholeWebsite, removeUselessWords);//进行处理
+	process(in, out, removeUselessWords);//进行处理
 	in.close(); out.close();//关闭打开的文件
 }
 

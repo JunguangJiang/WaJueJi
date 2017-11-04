@@ -101,14 +101,14 @@ void Dictionary::download(const char* vocabularyFile, bool isUTF8){//ÏÂÔØ±¾µØµÄÒ
 		cout << "error in open dictionary " << vocabularyFile <<endl;
 		exit(-1);
 	}
-		if(isUTF8){//¶ÔÓ¦utf8ÎÄ¼ş
-			while(!in.eof()){//¶ÁÈëÎÄ¼şÖĞµÄ
+	if(isUTF8){//¶ÔÓ¦utf8ÎÄ¼ş
+		while(!in.eof()){//¶ÁÈëÎÄ¼şÖĞµÄ
 			char temp[50];//Ã¿¸ö´ÊÓï
 			in >> temp;
 			put(UTF8ToGB(temp).c_str());//²¢½«Æä¼ÓÈë´ÊµäÖĞ
 		}
-		}else{//¶ÔÓ¦gbÎÄ¼ş
-			while(!in.eof()){//¶ÁÈëÎÄ¼şÖĞµÄ
+	}else{//¶ÔÓ¦gbÎÄ¼ş
+		while(!in.eof()){//¶ÁÈëÎÄ¼şÖĞµÄ
 			string temp;//Ã¿¸ö´ÊÓï
 			in >> temp;
 			put(temp.c_str());//²¢½«Æä¼ÓÈë´ÊµäÖĞ

@@ -1,6 +1,7 @@
 #pragma once
 #include "CharString.h"
 #include <memory>
+
 #define StringNodePosi StringNode*
 #define CharStringLinkPosi  std::shared_ptr<CharStringLink>
 

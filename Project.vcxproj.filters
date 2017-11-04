@@ -39,7 +39,7 @@
     <ClInclude Include="Dictionary.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="UnicodeToChi.h">
+    <ClInclude Include="Converter.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -62,7 +62,7 @@
     <ClCompile Include="Dictionary.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="UnicodeToChi.cpp">
+    <ClCompile Include="Converter.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
