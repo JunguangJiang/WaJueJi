@@ -117,7 +117,7 @@ void WebsiteProcessor::processHtml(const CharString& htmlText, std::ofstream& ou
 	}else{
 		string temp( (istreambuf_iterator<char>(outfile)), istreambuf_iterator<char>() );
 		//从文件读取数据到stl字符串temp
-		CharString string;//然后将其转化成CharString
+		CharString string(temp);//然后将其转化成CharString
 
 		//-----------------接下来对字符串string进行处理----------------------------------
 		

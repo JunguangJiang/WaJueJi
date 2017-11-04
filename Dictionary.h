@@ -5,7 +5,7 @@
 #include <iostream>
 #include <memory>
 const int DictionaryCapacity = 10133;//词典的默认容量，如果改变词典的数据来源，此处需要进行修改
-const int uselessWordLinkSize = 100;//无用词词典的默认容量
+const int uselessWordLinkSize = 101;//无用词词典的默认容量
 
 const int MaxWordLength = 16;//规定最长的中文词语长度是8个汉字
 

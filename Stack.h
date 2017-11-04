@@ -9,6 +9,7 @@ private:
 	T* _elem;//数据区
 	int _size;//规模
 	int _capacity;//容量
+	void expand();//栈空间不足时扩容
 
 public:
 	Stack(void);
@@ -17,9 +18,6 @@ public:
 	void pop();//退栈
 	T& top();//获取栈顶元素
 	bool empty();//判断栈顶是否为空
-	void expand();//栈空间不足时扩容
-
-	void print();//打印栈中的所有元素
 };
 
 #include <iostream>
@@ -71,11 +69,4 @@ bool Stack<T>::empty(){
 	return _size<=0;
 }
 
-
-template <typename T>
-void Stack<T>::print(){
-	for(int i=0; i<_size; i++){
-		std::cout << _elem[i] << endl;
-	}
-}
 

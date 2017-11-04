@@ -191,7 +191,6 @@ CharStringLinkPosi Dictionary::dividePhrase(const CharString& phrase, bool remov
 			left = max(right-MaxWordLength, 0);//子串的左界
 			while(left < right){
 				CharString subString = phrase.subString(left, right);//子串
-				//phrase.subString(left, right, subString);//subString = phrase[left, right)
 				if( search( subString)  && !isUselessWord(subString)){//如果subString是一个词,并且不是无用词
 					link->add(subString);//将subString加入字符串链表
 					break;
@@ -202,14 +201,11 @@ CharStringLinkPosi Dictionary::dividePhrase(const CharString& phrase, bool remov
 
 			if(left == right){
 				//Note:如果此时left==right，则内层循环中始终没有找到一个词,
-				//并且[left-2,right)并不是一个词典中的词，此处暂时不将其加入链表
+				//并且[left-2,right)并不是一个词典中的词，此处将其加入链表
 			
 				CharString subString = phrase.subString(left-2, right);//子串
-				//phrase.subString(left-2, right, subString);//subString = string[left-2, right)
 				if(!isUselessWord(subString))//如果子串不是无用词
-					link->add(subString.data());
-				//cout << subString << endl;
-			
+					link->add(subString.data());			
 				right = left-2;
 			}else{
 				//Note:如果此时left!=right,则找到了词[left,right)
@@ -222,7 +218,6 @@ CharStringLinkPosi Dictionary::dividePhrase(const CharString& phrase, bool remov
 			left = max(right-MaxWordLength, 0);//子串的左界
 			while(left < right){
 				CharString subString = phrase.subString(left, right);//子串
-				//phrase.subString(left, right, subString);//subString = phrase[left, right)
 				if( search( subString)){//如果subString是一个词
 					link->add(subString);//将subString加入字符串链表
 					break;
@@ -233,7 +228,7 @@ CharStringLinkPosi Dictionary::dividePhrase(const CharString& phrase, bool remov
 
 			if(left == right){
 				//Note:如果此时left==right，则内层循环中始终没有找到一个词,
-				//并且[left-2,right)并不是一个词典中的词，此处暂时不将其加入链表
+				//并且[left-2,right)并不是一个词典中的词，此处将其加入链表
 			
 				CharString subString = phrase.subString(left-2, right);//子串
 				//phrase.subString(left-2, right, subString);//subString = string[left-2, right)
