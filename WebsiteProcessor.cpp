@@ -255,3 +255,16 @@ void WebsiteProcessor::process(std::ifstream& in, std::ofstream& out){
 		processHtml(filename, out);//然后处理本地文件filename，将处理后的信息输出到输出流
 	}
 }
+
+bool WebsiteProcessor::extractInfo(CharString& inputFile, CharString& outputFile){
+	//处理inputFile中的所有网页，将结果存储到outputFile中，失败的话返回false
+
+}
+
+void WebsiteProcessor::initDictionary(){//初始化词库
+
+}
+
+CharStringLinkPosi WebsiteProcessor::divideWords(const CharString& sentence){//对句子进行分词
+
+}

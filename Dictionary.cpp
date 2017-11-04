@@ -16,6 +16,10 @@ static size_t hashCode(const char* string){//Éú³É×Ö·û´®µÄÑ­»·ÒÆÎ»É¢ÁĞÂë
 	return (size_t) h ;
 }
 
+static size_t hashCode(const CharString& string){
+	return hashCode(string.data());
+}
+
 bool inline isASCII(char c){//ÅĞ¶ÏÄ³¸ö×Ö·ûÊÇ·ñÊÇASCIIÂë:Ä¿Ç°½«×ÖÄ¸¡¢Êı×Ö¡¢Ó¢ÎÄµÄ±êµã·ûºÅ¶¼Ëã×÷´ËÁĞ£¬²»¿¼ÂÇ»»ĞĞ·ûµÈ
 	int d = (int)c;
 	return (d<127)&&(d>31);//ASCII±íÖĞµÄÒ»Ğ©×Ö·û
@@ -116,6 +120,8 @@ void Dictionary::download(const char* vocabularyFile, bool isUTF8){//ÏÂÔØ±¾µØµÄÒ
 void Dictionary::init(){//´ÊµäµÄ³õÊ¼»¯
 	download("./Dictionary/dictionary.dic", true);
 	download("./Dictionary/professionalTerms.dic", false);
+	initStopLetterLink();//³õÊ¼»¯Í£ÓÃ±êµã·ûºÅÁ´±í
+	initUselessWordLink();//³õÊ¼»¯ÎŞÓÃ´ÊÁ´±í
 }
 
 int Dictionary::getMaxHtSize(){//»ñµÃ×î´óÍ°µÄ¹æÄ££¬ÓÃÓÚĞÔÄÜµÄ·ÖÎö
@@ -134,7 +140,7 @@ void Dictionary::print(){//´òÓ¡ËùÓĞµÄÍ°£¬ÓÃÓÚĞÔÄÜ·ÖÎö
 	}
 }
 
-CharStringLinkPosi Dictionary::divideSentence(const CharString& sentence){
+CharStringLinkPosi Dictionary::divideSentence(const CharString& sentence, bool removeUselessWord){
 	//¶ÔÒ»¸ö¾ä×Ó½øĞĞ·Ö´Ê£¬ÔÊĞíÆäÖĞ³öÏÖ±êµã·ûºÅ¡¢Êı×Ö¡¢Ó¢ÎÄ×Ö·û£¬´ÓÖĞÌáÈ¡³öÖĞÎÄ¹Ø¼ü´Ê
 	//ºöÂÔËùÓĞµÄ±êµã·ûºÅ¡¢Êı×Ö¡¢Ó¢ÎÄ×Ö·û
 	CharStringLinkPosi link(new CharStringLink());//ĞÂ½¨Ò»¸ö×Ö·û´®Á´±í,´æ´¢¾ä×ÓµÄ·Ö´Ê½á¹û
@@ -144,12 +150,19 @@ CharStringLinkPosi Dictionary::divideSentence(const CharString& sentence){
 	while(right < sentence.size()){//±éÀúÕû¸ö¾ä×Ó
 		if(isASCII(sentence[right])){//Èç¹ûµ±Ç°×Ö·ûÊÇASCII×Ö·û
 			if( (left+1) < right ){//Èç¹û[left+1,right)Ö®¼ä´æÔÚGB×Ö·û(¶ÌÓï£©
-				CharString string; sentence.subString(left+1, right,string);//½«ÆäÈ¡³ö
+				CharString string = sentence.subString(left+1, right);//½«ÆäÈ¡³ö
 				S.push(string);//²¢¼ÓÈëÕ»ÖĞ
 			}
 			left = right;//left±ê¼ÇÉÏÒ»´ÎÕÒµ½µÄÍ£ÓÃ´ÊÎ»ÖÃ
 			right++;//²é¿´ÏÂÒ»¸ö×Ö·û
-		}else{
+		}else if( (right<sentence.size()-1) && ( isStopLetter(sentence.subString(right, right+2)) ) ){//Èç¹ûÏÂÁ½¸ö×Ö·û¹¹³ÉÖĞÎÄÖĞµÄÒ»¸öÍ£ÓÃ´Ê
+			if( (left+1) < right ){//Èç¹û[left+1,right)Ö®¼ä´æÔÚGB×Ö·û(¶ÌÓï£©
+				CharString string = sentence.subString(left+1, right);//½«ÆäÈ¡³ö
+				S.push(string);//²¢¼ÓÈëÕ»ÖĞ
+			}
+			left = right+1;
+			right = right+2;
+		}else{//ÆäÓàÇé¿ö
 			right += 2;//ËµÃ÷µ±Ç°×Ö·ûÊÇGBÂë£¬²é¿´ÏÂÏÂÒ»¸ö×Ö·û
 		}
 	}
@@ -160,46 +173,126 @@ CharStringLinkPosi Dictionary::divideSentence(const CharString& sentence){
 
 	while(!S.empty()){//´ÓÕ»ÖĞÈ¡³öËùÓĞµÄ¶ÌÓï
 		CharString string = S.top(); S.pop();
-		CharStringLinkPosi tempLink = dividePhrase(string);//¶ÔÆä·Ö´Ê£¬½«¾Ö²¿·Ö´Ê½á¹û´æÈëtempLink
+		CharStringLinkPosi tempLink = dividePhrase(string, removeUselessWord);//¶ÔÆä·Ö´Ê£¬½«¾Ö²¿·Ö´Ê½á¹û´æÈëtempLink
 		if(tempLink->size()>0)
 			link->add(tempLink);//½«¾Ö²¿·Ö´Ê½á¹ûtempLink¼ÓÈë×ÜµÄ·Ö´Ê½á¹ûlinkÖĞ
 	}
 	return link;
 }
 
-CharStringLinkPosi Dictionary::dividePhrase(const CharString& phrase){
+CharStringLinkPosi Dictionary::dividePhrase(const CharString& phrase, bool removeUselessWord){
 //½«phrase°´ÕÕµ±Ç°¼ÓÔØµÄ´Ê¿â½øĞĞ·Ö´Ê£¬²¢ÒÔ×Ö·û´®Á´±íµÄĞÎÊ½·µ»Ø½á¹û
 //²ÉÓÃÄæĞò×î´ó·Ö´ÊËã·¨
 	CharStringLinkPosi link(new CharStringLink());//ĞÂ½¨Ò»¸ö×Ö·û´®Á´±í
 	
-	int left, right = phrase.size();//left,rightÊÇ×Ó´®µÄ×óÓÒ½ç
-	while(right > 0){//±éÀúÕû¸öphrase
-		left = max(right-MaxWordLength, 0);//×Ó´®µÄ×ó½ç
-		while(left < right){
-			CharString subString;//×Ó´®
-			phrase.subString(left, right, subString);//subString = phrase[left, right)
-			if( search( subString) ){//Èç¹ûsubStringÊÇÒ»¸ö´Ê
-				link->add(subString);//½«subString¼ÓÈë×Ö·û´®Á´±í
-				break;
-			}else{//Èç¹ûsubString²»ÊÇÒ»¸ö´Ê
-				left+=2;//Ôò×ó½çÏòÓÒÒÆ¶¯Ò»¸öºº×Ö
+	if(removeUselessWord){//Èç¹ûÓ¦¸ÃÉ¾µôÎŞÓÃ´Ê
+		int left, right = phrase.size();//left,rightÊÇ×Ó´®µÄ×óÓÒ½ç
+		while(right > 0){//±éÀúÕû¸öphrase
+			left = max(right-MaxWordLength, 0);//×Ó´®µÄ×ó½ç
+			while(left < right){
+				CharString subString = phrase.subString(left, right);//×Ó´®
+				//phrase.subString(left, right, subString);//subString = phrase[left, right)
+				if( search( subString)  && !isUselessWord(subString)){//Èç¹ûsubStringÊÇÒ»¸ö´Ê,²¢ÇÒ²»ÊÇÎŞÓÃ´Ê
+					link->add(subString);//½«subString¼ÓÈë×Ö·û´®Á´±í
+					break;
+				}else{//Èç¹ûsubString²»ÊÇÒ»¸ö´Ê
+					left+=2;//Ôò×ó½çÏòÓÒÒÆ¶¯Ò»¸öºº×Ö
+				}
+			}
+
+			if(left == right){
+				//Note:Èç¹û´ËÊ±left==right£¬ÔòÄÚ²ãÑ­»·ÖĞÊ¼ÖÕÃ»ÓĞÕÒµ½Ò»¸ö´Ê,
+				//²¢ÇÒ[left-2,right)²¢²»ÊÇÒ»¸ö´ÊµäÖĞµÄ´Ê£¬´Ë´¦ÔİÊ±²»½«Æä¼ÓÈëÁ´±í
+			
+				CharString subString = phrase.subString(left-2, right);//×Ó´®
+				//phrase.subString(left-2, right, subString);//subString = string[left-2, right)
+				if(!isUselessWord(subString))//Èç¹û×Ó´®²»ÊÇÎŞÓÃ´Ê
+					link->add(subString.data());
+				//cout << subString << endl;
+			
+				right = left-2;
+			}else{
+				//Note:Èç¹û´ËÊ±left!=right,ÔòÕÒµ½ÁË´Ê[left,right)
+				right = left;
 			}
 		}
+	}else{//Èç¹û²»Ó¦¸ÃÉ¾³ıÎŞÓÃ´Ê
+		int left, right = phrase.size();//left,rightÊÇ×Ó´®µÄ×óÓÒ½ç
+		while(right > 0){//±éÀúÕû¸öphrase
+			left = max(right-MaxWordLength, 0);//×Ó´®µÄ×ó½ç
+			while(left < right){
+				CharString subString = phrase.subString(left, right);//×Ó´®
+				//phrase.subString(left, right, subString);//subString = phrase[left, right)
+				if( search( subString)){//Èç¹ûsubStringÊÇÒ»¸ö´Ê
+					link->add(subString);//½«subString¼ÓÈë×Ö·û´®Á´±í
+					break;
+				}else{//Èç¹ûsubString²»ÊÇÒ»¸ö´Ê
+					left+=2;//Ôò×ó½çÏòÓÒÒÆ¶¯Ò»¸öºº×Ö
+				}
+			}
 
-		if(left == right){
-			//Note:Èç¹û´ËÊ±left==right£¬ÔòÄÚ²ãÑ­»·ÖĞÊ¼ÖÕÃ»ÓĞÕÒµ½Ò»¸ö´Ê,
-			//²¢ÇÒ[left-2,right)²¢²»ÊÇÒ»¸ö´ÊµäÖĞµÄ´Ê£¬´Ë´¦ÔİÊ±²»½«Æä¼ÓÈëÁ´±í
-			/*
-			CharString subString;//×Ó´®
-			string.subString(left-2, right, subString);//subString = string[left-2, right)
-			link->add(subString.data());
-			cout << subString << endl;
-			*/
-			right = left-2;
-		}else{
-			//Note:Èç¹û´ËÊ±left!=right,ÔòÕÒµ½ÁË´Ê[left,right)
-			right = left;
+			if(left == right){
+				//Note:Èç¹û´ËÊ±left==right£¬ÔòÄÚ²ãÑ­»·ÖĞÊ¼ÖÕÃ»ÓĞÕÒµ½Ò»¸ö´Ê,
+				//²¢ÇÒ[left-2,right)²¢²»ÊÇÒ»¸ö´ÊµäÖĞµÄ´Ê£¬´Ë´¦ÔİÊ±²»½«Æä¼ÓÈëÁ´±í
+			
+				CharString subString = phrase.subString(left-2, right);//×Ó´®
+				//phrase.subString(left-2, right, subString);//subString = string[left-2, right)
+				link->add(subString.data());
+				//cout << subString << endl;
+				right = left-2;
+			}else{
+				//Note:Èç¹û´ËÊ±left!=right,ÔòÕÒµ½ÁË´Ê[left,right)
+				right = left;
+			}
 		}
 	}
+	
 	return link;
+}
+
+void Dictionary::initStopLetterLink(){//³õÊ¼»¯Í£ÓÃ´Ê
+	stopLetterLink = make_shared<CharStringLink>();
+	const char* stopWordFile = "./Dictionary/stopLetter.dic";
+	ifstream in; 
+	in.open(stopWordFile, ios::binary);
+	if(!in){
+		cout << "error in open dictionary " << stopWordFile <<endl;
+		exit(-1);
+	}
+	while(!in.eof()){//¶ÁÈëÎÄ¼şÖĞµÄ
+		CharString temp;//Ã¿¸öÍ£ÓÃ´Ê
+		in >> temp;
+		stopLetterLink->add(temp);
+	}
+	in.close();
+}
+
+bool Dictionary::isStopLetter(CharString word){
+	return (stopLetterLink->search(word)!=-1);
+}
+
+void Dictionary::initUselessWordLink(){//³õÊ¼»¯ueslessWordLink
+	uselessWordLink = new CharStringLinkPosi[uselessWordLinkSize];
+	for(int i=0; i<uselessWordLinkSize; i++){
+		uselessWordLink[i] = make_shared<CharStringLink>();
+	}
+
+	const char* uselessWordFile = "./Dictionary/uselessWord.dic";
+	ifstream in; 
+	in.open(uselessWordFile, ios::binary);
+	if(!in){
+		cout << "error in open dictionary " << uselessWordFile <<endl;
+		exit(-1);
+	}
+	while(!in.eof()){//¶ÁÈëÎÄ¼şÖĞµÄ
+		CharString word;//Ã¿¸öÍ£ÓÃ´Ê
+		in >> word;
+		size_t  h = hashCode(word) % uselessWordLinkSize;//µÃµ½¸Ã×Ö·û´®µÄhashÂë
+		uselessWordLink[h]->add(word);//ÔÚhashÂë¶ÔÓ¦µÄ×Ö·û´®Á´±íÄ©Î²¼ÓÈëÎŞÓÃ´Ê
+	}
+	in.close();
+}
+bool Dictionary::isUselessWord(CharString word){//ÅĞ¶ÏÄ³¸ö´ÊÊÇ·ñÓĞÓÃ
+	size_t h = hashCode(word) % uselessWordLinkSize;//µÃµ½¸Ã´ÎµÄhashÂë
+	return (uselessWordLink[h]->search(word) >= 0);//Èç¹ûÔÚhashÂë¶ÔÓ¦µÄÎŞÓÃ´ÊÁ´±íÖĞÕÒµ½ÁË´ÊÌõword,Ôò·µ»Øtrue£»·ñÔò·µ»Øfalse
 }

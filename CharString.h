@@ -27,7 +27,8 @@ public:
 	int indexOf(const char* subString, const int pos)const;
 
 	bool subString(int left, int right, CharString& sub)const;
-	//将原字符串[left,right)的子串的拷贝到sub中	
+	//将原字符串[left,right)的子串的拷贝到sub中
+	CharString subString(int left, int right)const;
 	
 	void concat(const CharString& string);
 	//将另外一个字符串string接到当前字符串的末尾

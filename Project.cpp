@@ -19,7 +19,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	setlocale(LC_ALL, "chs");//设置为中文地区
 
 	//以下代码实现网页解析
-	/*
+	
 	CharString urlFile = "./input/url.csv";
 	ifstream in; in.open(urlFile.data());//打开存储网页url的文件
 	if(!in){
@@ -35,7 +35,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	WebsiteProcessor websiteProcessor;//网页信息处理类
 	websiteProcessor.process(in, out);//进行处理
 	in.close(); out.close();//关闭打开的文件
-	*/
+	
 	//以下代码用于字符串链表的检验
 	/*
 	CharStringLink link;
@@ -54,13 +54,10 @@ int _tmain(int argc, _TCHAR* argv[])
 	*/
 
 	//以下代码用于字典的检验
+	/*
 	Dictionary dictionary;//新建一个词典
 	dictionary.init();//词典的初始化
-	//cout << dictionary.search("挖机") << endl;//查询有无某个元素
-	//cout << dictionary.search("拖拉机") << endl;
-	//cout << dictionary.getMaxHtSize() << endl;//测试结果是48
-	//dictionary.print();
-	//CharString string("求购卡特挖机你好啊，不算数");
+
 	CharString string;
 	CharString inputFile = "./input/string.txt";
 	ifstream in; in.open(inputFile.data());//打开存储字符串的文件
@@ -77,7 +74,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 	in.close();
 
-	CharStringLinkPosi link = dictionary.divideSentence(string);
+	CharStringLinkPosi link = dictionary.divideSentence(string,false);
 
 	CharString outputFile = "./output/string.txt";
 	ofstream out; out.open(outputFile.data());//打开存储字符串的文件
@@ -88,6 +85,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		link->printReverse(out);
 	}
 	out.close();
+	*/
 	return 0;
 }
 

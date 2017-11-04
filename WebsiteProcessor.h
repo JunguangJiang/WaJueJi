@@ -1,5 +1,7 @@
 #pragma once
 #include "CharString.h"
+#include "CharStringLink.h"
+#include "Dictionary.h"
 #include <iostream>
 #include <memory>
 
@@ -36,6 +38,8 @@ public:
 class WebsiteProcessor//网页处理类
 {
 private:
+	shared_ptr<Dictionary> dictionary;//词典指针
+
 	NodePosi readOnePairOfBracket(const CharString& string, int& i);
 	//从字符串string的第i个位置开始读取一对匹配的括号，并返回这对括号组成的节点
 
@@ -51,11 +55,19 @@ private:
 	void readURL(std::ifstream& in, CharString& url);
 	//读入输入流in中的网页，得到网页的url
 
+
 public:
 	WebsiteProcessor(void);
 	~WebsiteProcessor(void);
 
 	void process(std::ifstream& in, std::ofstream& out);
 	//处理输入流in中的所有网页，并将结果输出到输出流out中
+
+	bool extractInfo(CharString& inputFile, CharString& outputFile);
+	//处理inputFile中的所有网页，将结果存储到outputFile中，失败的话返回false
+
+	void initDictionary();//初始化词库
+
+	CharStringLinkPosi divideWords(const CharString& sentence);//对句子进行分词
 };
 

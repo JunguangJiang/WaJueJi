@@ -107,6 +107,12 @@ bool CharString::subString(int left, int right, CharString& sub)const{//将原字符
 	return true;
 }
 
+CharString CharString::subString(int left, int right)const{
+	CharString sub;
+	subString(left, right, sub);
+	return sub;
+}
+
 void CharString::concat(const CharString& string){//将string接到当前字符串的末尾
 	for(int i=0; i<string.size(); i++){
 		insert(string[i]);
