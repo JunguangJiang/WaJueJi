@@ -14,28 +14,54 @@ using namespace std;
 #include "CharStringLink.h"
 #include "Dictionary.h"
 
+#include "UnicodeToChi.h"
+/*
+#include <codecvt>
+
+
+
+#define GBK_NAME ".936"
+
+typedef codecvt_byname<wchar_t, char, mbstate_t> WCHAR_GBK;
+
+int inline stringToValue(const CharString& string){//获得一个字符串的数值大小
+	int value = 0;
+	for(int i=0; i<string.size(); i++){
+		value *= 10;
+		value += (int)string[i] - 48;
+	}
+	return value;
+}
+
+CharString decode(const CharString& code){//对&#型编码进行解码
+	int value = stringToValue(code);//获得其数值
+
+	wstring_convert<WCHAR_GBK> cvtGBK(new WCHAR_GBK(GBK_NAME));
+
+	wchar_t uchar = value;
+	wstring ustring; ustring.push_back(uchar);
+	wcout << ustring << endl;
+
+	CharString string = cvtGBK.to_bytes(ustring);
+	cout << string;
+
+	return string;
+}
+*/
 int _tmain(int argc, _TCHAR* argv[])
 {
 	setlocale(LC_ALL, "chs");//设置为中文地区
 
 	//以下代码实现网页解析
-	
-	CharString urlFile = "./input/url.csv";
-	ifstream in; in.open(urlFile.data());//打开存储网页url的文件
-	if(!in){
-		cout << "error in open url.csv" <<endl;
-		exit(-1);
-	}
+	/*
+	CharString urlFile = "./input/urlShort.csv";
 	CharString resultFile = "./output/result.csv";//打开提取信息存储的文件
-	ofstream out; out.open(resultFile.data());
-	if(!out){
-		cout << "error in open result.csv" <<endl;
-		exit(-1);
-	}
+
 	WebsiteProcessor websiteProcessor;//网页信息处理类
-	websiteProcessor.process(in, out);//进行处理
-	in.close(); out.close();//关闭打开的文件
-	
+	websiteProcessor.initDictionary();//初始化词典
+	websiteProcessor.extractInfo(urlFile, resultFile, false, true);//浏览整个网页，去除无用词
+	*/
+
 	//以下代码用于字符串链表的检验
 	/*
 	CharStringLink link;
@@ -86,6 +112,17 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 	out.close();
 	*/
+
+	//以下用于测试网页上特殊字符的解码
+	//CharString code = "25105";
+	CharString string="25105";
+	UnicodeToChi convert;
+	cout << convert.decode(string);
+	//cout << decode("25105");
+
+	//wchar_t wc2 = 31616;
+
+	//wcout<< wc2 << endl;
 	return 0;
 }
 

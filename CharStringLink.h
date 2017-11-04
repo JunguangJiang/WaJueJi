@@ -23,9 +23,11 @@ private:
 	StringNodePosi tailer;//尾节点
 	int _size;//规模
 public:
-	int size()const {return _size;}
 	CharStringLink(void);
 	~CharStringLink(void);
+	CharStringLink(const CharStringLink& rhs);//拷贝构造函数
+
+	int size()const {return _size;}
 	void add(const CharString& data);//添加元素
 	void remove(const CharString& data);//删除值为data的元素，若删除成功，则返回true
 	int search(const CharString& data);//查找某个元素的位置，若失败则返回-1
@@ -39,6 +41,8 @@ public:
 
 	void print(std::ostream&);//打印所有的元素，用作调试
 	void printReverse(std::ostream&);//逆向打印
+
+	friend std::ostream& operator<<(std::ostream& out, const CharStringLink& link);
 };
 
 

@@ -108,7 +108,7 @@ int WebsiteProcessor::getFirstLeftBracket(const CharString& string, int i){
 	return string.indexOf("<", i);
 }
 
-void WebsiteProcessor::processHtml(const CharString& htmlText, std::ofstream& out){
+void WebsiteProcessor::processHtml(const CharString& htmlText, std::ofstream& out, bool readWholeWebsite, bool removeUselessWords){
 	//处理本地文件htmlText，并将结果输出到out中 	
 	
 	ifstream outfile; //文件输出流
@@ -198,6 +198,12 @@ void WebsiteProcessor::processHtml(const CharString& htmlText, std::ofstream& ou
 			default:
 				break;
 			}
+
+			if(!readWholeWebsite && z_a.size()>=5 && 
+				!tszh1_a.empty() && authi_a.empty() && 
+				!authi_em.empty() ){//在加速模式下，只要找到了所需信息，就退出当前网页的搜索
+				break;
+			}
 		}
 		if(z_a.size()<5 || tszh1_a.empty() || authi_a.empty() || authi_em.empty()//对于无法获取信息的情况
 			//|| tfsz_p.empty()//发帖内容，编码问题尚未解决
@@ -218,7 +224,8 @@ void WebsiteProcessor::processHtml(const CharString& htmlText, std::ofstream& ou
 		//将结果输出到输出流
 		out << record.category << "," << record.subclass << "," << record.title << ","
 			/*<< record.content << "," 编码问题尚未解决*/ << record.userName << "," << record.date << "," 
-			<< record.type //Note:此处之后加入分词结果！！！
+			<< record.type << "," //Note:此处之后加入分词结果！！！
+			<< divideWords(record.title, removeUselessWords)//输出分词结果
 			<< endl;
 
 		outfile.close();//关闭文件
@@ -236,8 +243,11 @@ void WebsiteProcessor::readURL(std::ifstream& in, CharString& url)//读入输入流in
 	line.subString(left+1, right, url);//截取引号之间的内容存到url中
 }
 
-void WebsiteProcessor::process(std::ifstream& in, std::ofstream& out){
+void WebsiteProcessor::process(std::ifstream& in, std::ofstream& out, bool readWholeWebsite, bool removeUselessWords){
 	//处理输入流in中的所有网页，并将结果输出到输出流out中
+	//如果readWholeWebsite为true，则会读完整个网页，但是效率会比较低；如果为false，则只要得到所需的信息后，就返回，效率较高
+	//如果removeUselessWords为true，则分词结果就会删除无用词；为false，则保留无用词
+
 	string temp;
 	getline(in, temp);//读入的第一行的内容无用
 	//输出第一行内容
@@ -252,19 +262,37 @@ void WebsiteProcessor::process(std::ifstream& in, std::ofstream& out){
 		CharString filename;//本地文件
 		downloadWebsite(url, filename);//将网页下载到本地文件filename
 		out << id++ << "," << url << "," ;//先输出序号和网页url
-		processHtml(filename, out);//然后处理本地文件filename，将处理后的信息输出到输出流
+		processHtml(filename, out, readWholeWebsite, removeUselessWords);//然后处理本地文件filename，将处理后的信息输出到输出流
 	}
 }
 
-bool WebsiteProcessor::extractInfo(CharString& inputFile, CharString& outputFile){
+void WebsiteProcessor::extractInfo(CharString& inputFile, CharString& outputFile, bool readWholeWebsite, bool removeUselessWords){
 	//处理inputFile中的所有网页，将结果存储到outputFile中，失败的话返回false
-
+	//如果readWholeWebsite为true，则会读完整个网页，但是效率会比较低；如果为false，则只要得到所需的信息后，就返回，效率较高
+	//如果removeUselessWords为true，则分词结果就会删除无用词；为false，则保留无用词
+	ifstream in; in.open(inputFile.data());//打开存储网页url的文件
+	if(!in){
+		cout << "error in open " << inputFile <<endl;
+		exit(-1);
+	}
+	ofstream out; out.open(outputFile.data());//打开提取信息存储的文件
+	if(!out){
+		cout << "error in open " << outputFile <<endl;
+		exit(-1);
+	}
+	process(in, out, readWholeWebsite, removeUselessWords);//进行处理
+	in.close(); out.close();//关闭打开的文件
 }
 
 void WebsiteProcessor::initDictionary(){//初始化词库
-
+	dictionary = make_shared<Dictionary>();//新建一个词库
+	dictionary->init();//词库初始化
 }
 
-CharStringLinkPosi WebsiteProcessor::divideWords(const CharString& sentence){//对句子进行分词
-
+CharStringLink WebsiteProcessor::divideWords(const CharString& sentence, bool removeUselessWords){//对句子进行分词
+	//如果removeUselessWords为true，则分词结果就会删除无用词；为false，则保留无用词
+	if(!dictionary){
+		exit(-1);
+	}
+	return *dictionary->divideSentence(sentence, removeUselessWords);
 }

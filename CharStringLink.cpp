@@ -30,6 +30,20 @@ CharStringLink::~CharStringLink(void)
 	}
 }
 
+CharStringLink::CharStringLink(const CharStringLink& rhs){//拷贝构造函数
+	header = new StringNode();
+	tailer = new StringNode();
+	header->succ = tailer;//初始化时头、
+	tailer->prev = header;//尾节点相连
+	_size = 0;//初始规模为0
+	
+	StringNodePosi node = rhs.header->succ;
+	while(node != rhs.tailer){
+		add(node->data);
+		node = node->succ;
+	}
+}
+
 void CharStringLink::add(const CharString& data){//添加元素
 	add(data.data());
 }
@@ -116,7 +130,16 @@ void CharStringLink::printReverse(ostream& out){
 void CharStringLink::add(CharStringLinkPosi link){//加入另外一个字符串链表的所有元素
 	StringNodePosi node = link->header->succ;
 	while(node != link->tailer){
-		add(node->data.data());
+		add(node->data);
 		node = node->succ;
 	}
+}
+
+ostream& operator<<(ostream& out, const CharStringLink& link){
+	StringNodePosi node = link.tailer->prev;
+	while(node != link.header ){
+		out << node->data << " ";
+		node = node->prev;//逆序输出
+	}
+	return out;
 }
