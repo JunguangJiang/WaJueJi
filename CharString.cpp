@@ -191,9 +191,11 @@ void CharString::remove(int i){//删除第i个字符
 }
 
 void CharString::removeSpace(){//删除字符串中的所有空格
-	for(int i=0; i<size(); i++){
-		if(_elem[i] == ' '){
+	for(int i=0; i<size();){
+		if(_elem[i] == ' ' || _elem[i] == '\n'){
 			remove(i);
+		}else{
+			i++;
 		}
 	}
 }

@@ -46,6 +46,8 @@ private:
 
 	int getFirstLeftBracket(const CharString& string, int i);
 	//获得字符串string从第i个位置起第一个左括号的位置
+public:
+	CharString getText(const CharString& string);//求取一个字符串的文本信息，去除所有的标签信息
 	
 	void downloadWebsite(const CharString& url, CharString& filename); 
 	//下载url网页到本地文件filename

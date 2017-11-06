@@ -43,6 +43,7 @@ size_t write_data(char *buffer,size_t size, size_t nitems,void *outstream)//将bu
 	return written;    
 }    
 
+//curl的使用参考 http://blog.csdn.net/u011164819/article/details/73468363
 void WebsiteProcessor::downloadWebsite(const CharString& url, CharString& filename){ //下载url网页到本地文件，返回文件名
 	filename = "temp.txt";//文件名字符串
 	unique_ptr<char> fileData( filename.data() );//文件名对应的字符数组
@@ -78,7 +79,7 @@ NodePosi WebsiteProcessor::readOnePairOfBracket(const CharString& string, int& i
 	node->left = i; //左括号的位置
 	node->right = string.indexOf(">", i+1);//从i+1的位置开始找">"，找到的位置即为右括号的位置
 	i = node->right;//此后从右括号的右边开始找起
-
+	
 	CharString sub = string.subString(node->left, node->right+1);//求取原来字符串在上述左右括号间的子串
 	if(sub[1] == '/'){
 		node->matchingType = Right;
@@ -101,6 +102,29 @@ NodePosi WebsiteProcessor::readOnePairOfBracket(const CharString& string, int& i
 	}
 	return node;
 }
+
+CharString WebsiteProcessor::getText(const CharString& string){//求取一个字符串的文本信息，去除所有的标签信息
+	CharString result;
+	int right=0, left=0;//right标记上一个匹配的括号的右边位置+1，left标记当前匹配的括号的左边位置
+	while(true){
+		left = getFirstLeftBracket(string, left);//找到下一个匹配括号的左边位置
+		if(left<0){//如果已经找到了尽头
+			if(right < string.size()){
+				result.concat(string.subString(right, string.size()) );
+			}
+			break;
+		}
+		NodePosi node = readOnePairOfBracket(string, left);
+		//找到字符串中的第一个匹配的括号[node->left, node->right+1),同时left被更新到node->right+1
+
+		if( right < node->left ){//[right, node->left)之间存在文本
+			result.concat(string.subString(right, node->left));//将文本加入结果中
+		}
+		right = node->right+1;//right变为当前匹配括号的右边位置加一
+	}
+	return result;
+}
+
 int WebsiteProcessor::getFirstLeftBracket(const CharString& string, int i){
 	//获得字符串string从第i个位置起第一个左括号的位置
 	return string.indexOf("<", i);
@@ -127,7 +151,7 @@ void WebsiteProcessor::processHtml(const CharString& htmlText, std::ofstream& ou
 		Stack<NodePosi> nodeStack;//存储已经所有节点类型为左界的节点，并且这些节点对应的右界都还没有扫描到
 
 		vector<shared_ptr<CharString>> z_a;//发帖大类，发帖小类、发帖标题
-		vector<shared_ptr<CharString>> tfsz_p;//正文
+		vector<shared_ptr<CharString>> td_tf;//正文
 		vector<shared_ptr<CharString>> authi_a;//发帖人
 		vector<shared_ptr<CharString>> authi_em;//发帖日期
 		vector<shared_ptr<CharString>> tszh1_a;//发帖分类、发帖标题
@@ -146,14 +170,17 @@ void WebsiteProcessor::processHtml(const CharString& htmlText, std::ofstream& ou
 			switch (node->matchingType)//根据节点的类型,若当前节点是
 			{
 			case SelfMatched://自匹配，不做处理
+				//cout << "self "<< node->m_tag << endl;
 				break;
 			case Left://左界
 				if(node->m_tag == "div"){//若节点的标签是"div"
 					divClassStack.push(node->m_class);//则记录节点的class
 				}
 				nodeStack.push(node);//并将节点压栈
+				//cout << "<"<< node->m_tag << endl;
 				break;
 			case Right://右界
+				//cout << ">" << node->m_tag << endl;
 				if(nodeStack.empty()){//假如栈中没有节点,说明出现问题
 					std::cout << "error in  match"<<endl;
 					break;
@@ -171,11 +198,12 @@ void WebsiteProcessor::processHtml(const CharString& htmlText, std::ofstream& ou
 						*content = string.subString(nodeStack.top()->right+1, node->left);//取得文本内容
 						authi_a.push_back(content);//将其存储在authi_a中
 					}
-				}else if(nodeStack.top()->m_tag == "p"){//如果是标签为p
-					if(divClassStack.top() == "t_fsz"){//并且所在的div为t_fsz,则
+				}else if(nodeStack.top()->m_tag == "td"){//如果是标签为td
+					if(nodeStack.top()->m_class == "t_f"){//并且类型为t_f,则
 						shared_ptr<CharString> content(new CharString);//对应发帖内容
-						*content = string.subString(nodeStack.top()->right+1, node->left);//将发帖内容存在
-						tfsz_p.push_back(content);//tfsz_p中
+						*content = getText( string.subString(nodeStack.top()->right+1, node->left) );//除去多余的标签内容
+						content->removeSpace();//除去多余的空格
+						td_tf.push_back(content);//存入td_tf中
 					}
 				}else if(nodeStack.top()->m_tag == "em"){//如果标签是em
 					if(divClassStack.top() == "authi"){//并且所在的div为authi，则
@@ -194,7 +222,7 @@ void WebsiteProcessor::processHtml(const CharString& htmlText, std::ofstream& ou
 		}
 
 		if(z_a.size()<5 || tszh1_a.empty() || authi_a.empty() || authi_em.empty()//对于无法获取信息的情况
-			|| tfsz_p.empty()//发帖内容
+			|| td_tf.empty()//发帖内容
 				){
 				out << endl;
 				return;
@@ -205,7 +233,7 @@ void WebsiteProcessor::processHtml(const CharString& htmlText, std::ofstream& ou
 		record.type = *tszh1_a[0];//类型
 		record.userName = *authi_a[0];//发帖人
 		record.date = *authi_em[0];//发帖日期
-		record.content = UnicodeToChinese(*tfsz_p[0]);//发帖内容
+		record.content = UnicodeToChinese(*td_tf[0]);//发帖内容
 		
 		//将结果输出到输出流
 		out << record.category << "," << record.subclass << "," << record.title << ","
