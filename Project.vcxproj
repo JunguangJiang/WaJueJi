@@ -83,9 +83,11 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BBST.h" />
     <ClInclude Include="CharString.h" />
     <ClInclude Include="CharStringLink.h" />
     <ClInclude Include="Dictionary.h" />
+    <ClInclude Include="DocList.h" />
     <ClInclude Include="Stack.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -93,10 +95,12 @@
     <ClInclude Include="WebsiteProcessor.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BBST.cpp" />
     <ClCompile Include="CharString.cpp" />
     <ClCompile Include="CharStringLink.cpp" />
     <ClCompile Include="Converter.cpp" />
     <ClCompile Include="Dictionary.cpp" />
+    <ClCompile Include="DocList.cpp" />
     <ClCompile Include="Project.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

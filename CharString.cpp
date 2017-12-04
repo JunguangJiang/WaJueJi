@@ -199,3 +199,39 @@ void CharString::removeSpace(){//删除字符串中的所有空格
 		}
 	}
 }
+
+
+//以下实现两个字符串的大小比较（逐位比较字符的ASCII码，若前缀相同，则长度较长者较大）
+bool CharString::operator<(const CharString& string){
+	int i=0;
+	while( i<_size && i<string.size() ){//从低位开始比较两个字符的ASCII码大小
+		if( _elem[i] < string[i] )
+			return true;
+		else if( _elem[i] > string[i] )
+			return false;
+		else
+			i++;
+	}//如果二者的前缀相同
+	return _size < string.size();//则判断二者的长度
+}
+	
+bool CharString::operator<=(const CharString& string){
+	return ~(*this > string);
+}
+
+bool CharString::operator>=(const CharString& string){
+	return ~(*this < string);
+}
+	
+bool CharString::operator>(const CharString& string){
+	int i=0;
+	while( i<_size && i<string.size() ){//从低位开始比较两个字符的ASCII码大小
+		if( _elem[i] > string[i] )
+			return true;
+		else if( _elem[i] < string[i] )
+			return false;
+		else
+			i++;
+	}//如果二者的前缀相同
+	return _size > string.size();//则判断二者的长度
+}

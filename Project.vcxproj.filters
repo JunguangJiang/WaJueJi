@@ -42,6 +42,12 @@
     <ClInclude Include="Converter.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="DocList.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="BBST.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -63,6 +69,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Converter.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DocList.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="BBST.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

@@ -118,12 +118,18 @@ void Dictionary::download(const char* vocabularyFile, bool isUTF8){//ÏÂÔØ±¾µØµÄÒ
 }
 
 void Dictionary::init(){//´ÊµäµÄ³õÊ¼»¯
-	download("./Dictionary/dictionary.dic", true);
-	download("./Dictionary/professionalTerms.dic", false);
+	download("Dictionary/dictionary.dic", true);
+	download("Dictionary/professionalTerms.dic", false);
 	initStopLetterLink();//³õÊ¼»¯Í£ÓÃ±êµã·ûºÅÁ´±í
 	initUselessWordLink();//³õÊ¼»¯ÎŞÓÃ´ÊÁ´±í
 }
 
+void Dictionary::init(const CharString& dictionary, const CharString& professionalTerm){//´ÊµäºÍÍ£ÓÃ´ÊµÄ³õÊ¼»¯
+	download(dictionary.data(), true);
+	download(professionalTerm.data(), false);
+	initStopLetterLink();//³õÊ¼»¯Í£ÓÃ±êµã·ûºÅÁ´±í
+	initUselessWordLink();//³õÊ¼»¯ÎŞÓÃ´ÊÁ´±í
+}
 int Dictionary::getMaxHtSize(){//»ñµÃ×î´óÍ°µÄ¹æÄ££¬ÓÃÓÚĞÔÄÜµÄ·ÖÎö
 	int max=0;
 	for(int i=0; i<M; i++){
@@ -145,7 +151,6 @@ CharStringLinkPosi Dictionary::divideSentence(const CharString& sentence, bool r
 	//ºöÂÔËùÓĞµÄ±êµã·ûºÅ¡¢Êı×Ö¡¢Ó¢ÎÄ×Ö·û
 	CharStringLinkPosi link(new CharStringLink());//ĞÂ½¨Ò»¸ö×Ö·û´®Á´±í,´æ´¢¾ä×ÓµÄ·Ö´Ê½á¹û
 	Stack<CharString> S;//´æ´¢ËùÓĞµÄ¶ÌÓï
-
 	int left =-1, right = 0;//left±íÊ¾ÉÏÒ»´Î
 	while(right < sentence.size()){//±éÀúÕû¸ö¾ä×Ó
 		if(isASCII(sentence[right])){//Èç¹ûµ±Ç°×Ö·ûÊÇASCII×Ö·û

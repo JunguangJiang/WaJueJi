@@ -27,6 +27,7 @@ public:
 	Dictionary(int c = DictionaryCapacity);//创建一个桶数组容量不小于c的词典
 	~Dictionary(void);//释放桶数组及其中各非空元素所指向的词条
 	void init();//词典的初始化、停用词的初始化
+	void init(const CharString& dictionary, const CharString& professionalTerm);//词典和停用词的初始化
 	void put(const CharString& word);//插入词条
 	bool search(const CharString& word);//查询某个词是否在词典中
 	void put(const char* word);//插入词条

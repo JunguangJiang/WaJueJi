@@ -304,6 +304,11 @@ void WebsiteProcessor::initDictionary(){//初始化词库
 	dictionary->init();//词库初始化
 }
 
+void WebsiteProcessor::initDictionary(const CharString& mainDictionary,const CharString& professionalTerm){//初始化词库
+	dictionary = make_shared<Dictionary>();//新建一个词库
+	dictionary->init(mainDictionary, professionalTerm);//词库初始化
+}
+
 CharStringLink WebsiteProcessor::divideWords(const CharString& sentence, bool removeUselessWords){//对句子进行分词
 	//如果removeUselessWords为true，则分词结果就会删除无用词；为false，则保留无用词
 	if(!dictionary){

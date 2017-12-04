@@ -52,5 +52,11 @@ public:
 	char operator[](int i)const {return _elem[i];}//返回第i个元素的拷贝
 	int size()const{return _size;}//返回规模
 	char* data()const;//返回元素的数据区
+
+	//以下实现两个字符串的大小比较（逐位比较字符的ASCII码，若前缀相同，则长度较长者较大）
+	bool operator<=(const CharString& string);
+	bool operator<(const CharString& string);
+	bool operator>=(const CharString& string);
+	bool operator>(const CharString& string);
 };
 

@@ -71,6 +71,7 @@ public:
 	//处理inputFile中的所有网页，将结果存储到outputFile中，失败的话返回false
 	
 	void initDictionary();//初始化词库
+	void initDictionary(const CharString& mainDictionary,const CharString& professionalTerm);
 
 	CharStringLink divideWords(const CharString& sentence, bool removeUselessWords);//对句子进行分词
 	//如果removeUselessWords为true，则分词结果就会删除无用词；为false，则保留无用词
