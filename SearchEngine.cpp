@@ -2,8 +2,9 @@
 #include "SearchEngine.h"
 #include "DocList.h"
 #include <fstream>
+#include <vector>
 using namespace std;
-SearchEngine::SearchEngine(void)
+SearchEngine::SearchEngine(int weight):WebsiteProcessor(), weight(weight)
 {
 	bbst = new BBST();
 }
@@ -63,9 +64,39 @@ void SearchEngine::buildInvertedFile(const CharString& infile, const CharString&
 	bbst->debug(bbst->root());//打印整颗树
 }
 
-void SearchEngine::searchWordList(vector<CharString> wordList, ostream& out){
-	DocList list;
-	for(int i=0; i<wordList.size(); i++){
-		
+void SearchEngine::searchWordList(const CharStringLink& wordList, ostream& out){
+	DocList docList(-1, weight);
+	for(auto p = wordList.first(); wordList.isValid(p); p = wordList.next(p)){//将每个关键词对应的文档链表
+		docList.Add(*(bbst->Search(p->data)->docList));//都加入到docList中
+	}
+	out << docList << endl;
+}
+
+void SearchEngine::searchSentences(std::vector<CharString> sentences, std::ostream& out){
+		CharStringLink wordList;//所有的关键词集合
+		for(int i=0; i<sentences.size(); i++){//将每个句子
+			wordList.add(divideWords(sentences[i], true));//分解成关键词后加入wordList(句子分词暂时采用去除无用词）
+		}
+		searchWordList(wordList,out);//对得到的关键词集合进行查询
+}
+
+void SearchEngine::query(const CharString& queryFile, const CharString& resultFile){
+	//进行批量查询，查询文件为queryFile,结果文件为resultFile
+	ifstream in;
+	in.open(queryFile.data());
+	if(!in){
+		cout << "error in open inverted file "<< queryFile << endl;
+		exit(-1);
+	}
+	ofstream out;
+	out.open(resultFile.data());
+	if(!out){
+		cout << "error in open inverted file "<< resultFile << endl;
+		exit(-1);
+	}
+	while(!in.eof()){
+		string temp; getline(in, temp);CharString line = temp;//读入一行
+		std::vector<CharString> sentences = line.split(CharString(" "));//根据空格将该行分成多个句子
+		searchSentences(sentences, out);//然后查询这些句子
 	}
 }

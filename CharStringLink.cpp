@@ -135,6 +135,14 @@ void CharStringLink::add(CharStringLinkPosi link){//加入另外一个字符串链表的所有
 	}
 }
 
+void CharStringLink::add(const CharStringLink & link){//加入另外一个字符串链表的所有元素
+	StringNodePosi node = link.header->succ;
+	while(node != link.tailer){
+		add(node->data);
+		node = node->succ;
+	}
+}
+
 ostream& operator<<(ostream& out, const CharStringLink& link){
 	StringNodePosi node = link.tailer->prev;
 	while(node != link.header ){

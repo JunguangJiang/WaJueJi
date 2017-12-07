@@ -39,11 +39,17 @@ public:
 	int search(const char* data);//查找某个元素的位置，若失败则返回-1
 
 	void add(CharStringLinkPosi link);//加入另外一个字符串链表的所有元素
+	void add(const CharStringLink& link);
 
 	void print(std::ostream&);//打印所有的元素，用作调试
 	void printReverse(std::ostream&);//逆向打印
 
 	friend std::ostream& operator<<(std::ostream& out, const CharStringLink& link);
+
+	//以下函数用于对字符串链表的遍历
+	StringNodePosi first()const{return header->succ;}//返回首元素
+	bool isValid(StringNodePosi p)const{return p && p != header && p!= tailer;}//判断节点p是否为合法节点
+	StringNodePosi next(StringNodePosi p)const{return p->succ;}//返回节点p的后继
 };
 
 

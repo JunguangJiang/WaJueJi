@@ -10,6 +10,9 @@ using namespace std;
 #include "BBST.h"
 #include "SearchEngine.h"
 #include <vector>
+
+#include "resource.h"
+
 int _tmain(int argc, char* argv[])
 {
 	setlocale(LC_ALL, "chs");//设置为中文地区
@@ -80,8 +83,27 @@ int _tmain(int argc, char* argv[])
 	
 	SearchEngine searchEngine;
 	searchEngine.buildInvertedFile(CharString("output/result.csv"), CharString("output/invertedFile.txt"));
-	
+	/*
+	CharStringLink wordList;
+	wordList.add(CharString("求购"));
+	wordList.add(CharString("本人"));
+	wordList.add(CharString("求"));
+	wordList.add(CharString("最好"));
+	searchEngine.searchWordList(wordList, cout);
+	*/
+	/*
+	CharString sentence = "本人真心求购一台";
+	searchEngine.initDictionary();//初始化词典
+	cout << searchEngine.divideWords(sentence, true) << endl;
+	searchEngine.searchSentence(sentence, cout);
 	cout << "0";
+	*/
+	CharString queryFile = "query.txt";
+	CharString resultFile = "result.txt";
+	searchEngine.initDictionary();//初始化词典
+	searchEngine.query(queryFile, resultFile);
+
+	
 	return 0;
 }
 
