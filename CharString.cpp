@@ -235,3 +235,15 @@ bool CharString::operator>(const CharString& string){
 	}//如果二者的前缀相同
 	return _size > string.size();//则判断二者的长度
 }
+
+vector<CharString> CharString::split(const CharString& c) const{
+	int i = 0, j = 0;
+	vector<CharString> result;
+	j = indexOf(c, i);
+	while(j>=0){
+		result.push_back(subString(i,j));//[i,j)为一个新的子串
+		i = j+c.size(); j = indexOf(c, i);
+	}
+	result.push_back(subString(i, size()));
+	return result;
+}

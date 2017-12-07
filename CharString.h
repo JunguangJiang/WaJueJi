@@ -5,7 +5,7 @@
 #include <string>
 #include <iostream>
 #include <memory>
-
+#include <vector>
 class CharString
 {
 private:
@@ -58,5 +58,7 @@ public:
 	bool operator<(const CharString& string);
 	bool operator>=(const CharString& string);
 	bool operator>(const CharString& string);
+
+	std::vector<CharString> split(const CharString& c) const;//用字符串c将string划分成多个字符串，并返回
 };
 

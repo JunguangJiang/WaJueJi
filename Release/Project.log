@@ -1,23 +1,30 @@
-﻿生成启动时间为 2017/12/4 12:16:46。
-项目“\\vmware-host\Shared Folders\Learning\DataStructure\Project\Project\Project\Project.vcxproj”在节点 2 上(Build 个目标)。
+﻿生成启动时间为 2017/12/7 12:04:36。
+项目“Z:\Learning\DataStructure\Project\Project\Project\Project.vcxproj”在节点 2 上(Build 个目标)。
 ClCompile:
-  C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /Iinclude /Zi /nologo /W3 /WX- /sdl /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D CURL_STATICLIB /D _CRT_SECURE_NO_WARNINGS /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Release\Project.pch" /Fo"Release\\" /Fd"Release\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt Project.cpp
+  C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /Iinclude /Zi /nologo /W3 /WX- /sdl /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D CURL_STATICLIB /D _CRT_SECURE_NO_WARNINGS /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Release\Project.pch" /Fo"Release\\" /Fd"Release\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt BBST.cpp DocList.cpp Project.cpp SearchEngine.cpp
+  BBST.cpp
+  DocList.cpp
   Project.cpp
+  SearchEngine.cpp
+SearchEngine.cpp(39): warning C4018: “<”: 有符号/无符号不匹配
+SearchEngine.cpp(60): warning C4018: “<”: 有符号/无符号不匹配
+SearchEngine.cpp(68): warning C4018: “<”: 有符号/无符号不匹配
 Link:
-  C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"\\vmware-host\Shared Folders\Learning\DataStructure\Project\Project\Release\Project.exe" /INCREMENTAL:NO /NOLOGO /LIBPATH:lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"\\vmware-host\Shared Folders\Learning\DataStructure\Project\Project\Release\Project.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"\\vmware-host\Shared Folders\Learning\DataStructure\Project\Project\Release\Project.lib" /MACHINE:X86 /SAFESEH Release\BBST.obj
+  C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"Z:\Learning\DataStructure\Project\Project\Release\Project.exe" /INCREMENTAL:NO /NOLOGO /LIBPATH:lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"Z:\Learning\DataStructure\Project\Project\Release\Project.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"Z:\Learning\DataStructure\Project\Project\Release\Project.lib" /MACHINE:X86 /SAFESEH Release\BBST.obj
   Release\CharString.obj
   Release\CharStringLink.obj
   Release\Converter.obj
   Release\Dictionary.obj
   Release\DocList.obj
   Release\Project.obj
+  Release\SearchEngine.obj
   Release\stdafx.obj
   Release\WebsiteProcessor.obj
   正在生成代码
   已完成代码的生成
-  Project.vcxproj -> \\vmware-host\Shared Folders\Learning\DataStructure\Project\Project\Release\Project.exe
-已完成生成项目“\\vmware-host\Shared Folders\Learning\DataStructure\Project\Project\Project\Project.vcxproj”(Build 个目标)的操作。
+  Project.vcxproj -> Z:\Learning\DataStructure\Project\Project\Release\Project.exe
+已完成生成项目“Z:\Learning\DataStructure\Project\Project\Project\Project.vcxproj”(Build 个目标)的操作。
 
 生成成功。
 
-已用时间 00:00:02.67
+已用时间 00:00:04.58

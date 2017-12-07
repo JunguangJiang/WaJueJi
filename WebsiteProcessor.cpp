@@ -236,12 +236,18 @@ void WebsiteProcessor::processHtml(const CharString& htmlText, std::ofstream& ou
 		record.content = UnicodeToChinese(*td_tf[0]);//发帖内容
 		
 		//将结果输出到输出流
+		out << record.category << "||" << record.subclass << "||" << record.title << "||"
+			<< record.content << "||" << record.userName << "||" << record.date << "||" 
+			<< record.type << "||" 
+			<< divideWords(record.title, removeUselessWords) << divideWords(record.content, removeUselessWords)//输出分词结果
+			<< endl;
+		/*
 		out << record.category << "," << record.subclass << "," << record.title << ","
 			<< record.content << "," << record.userName << "," << record.date << "," 
 			<< record.type << "," 
 			<< divideWords(record.title, removeUselessWords) << divideWords(record.content, removeUselessWords)//输出分词结果
 			<< endl;
-
+		*/
 		outfile.close();//关闭文件
 	}
 }
@@ -275,7 +281,7 @@ void WebsiteProcessor::process(std::ifstream& in, std::ofstream& out, bool remov
 		CharString filename;//本地文件
 		cout << "downloading "<< url<<endl;
 		downloadWebsite(url, filename);//将网页下载到本地文件filename
-		out << id++ << "," << url << "," ;//先输出序号和网页url
+		out << id++ << "||" << url << "||" ;//先输出序号和网页url
 		cout << "processing "<< url<<endl;
 		processHtml(filename, out, removeUselessWords);//然后处理本地文件filename，将处理后的信息输出到输出流
 		cout << "finishing "<< url<<endl;
